@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import MapView, { Polygon, Region } from 'react-native-maps'
-import { Accuracy, getCurrentPositionAsync, requestForegroundPermissionsAsync } from 'expo-location'
+import MapView, { Polygon, Region, Polyline, LatLng } from 'react-native-maps'
+import * as Location from 'expo-location'
 
 
 
@@ -9,142 +9,154 @@ import { Accuracy, getCurrentPositionAsync, requestForegroundPermissionsAsync } 
 export default function MapViewWithLocation() {
 
 
-  const [location, setLocation] = useState<any>()
-  console.log(location)
+  const [region, setRegion] = useState<Region | null>(null);
+  const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
 
-  const getCurrentLocation = async (): Promise<void> => {
-    try {
-      const { status } = await requestForegroundPermissionsAsync()
+useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
 
-      const currentLocation = await getCurrentPositionAsync({
-        accuracy: Accuracy.High
-      })
-      setLocation({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421
-      })
-    } catch (err) {
-      console.error(err)
-    }
-  }
+      const loc = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = loc.coords;
 
-  useEffect(() => {
-    getCurrentLocation()
-  }, [])
+      setRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+
+      const sub = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Highest,
+          timeInterval: 2000,
+          distanceInterval: 5,
+        },
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setRouteCoords((prev) => [...prev, { latitude, longitude }]);
+          setRegion((r) => r ? { ...r, latitude, longitude, } : null )
+        }
+      );
+
+      return () => sub.remove();
+    })();
+  }, []);
+
+  if (!region) return null;
 
   
   const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }]
   const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
 
-  const cell1 = [
+  const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
     { latitude: 65.089615, longitude: 25.46245575 },
     { latitude: 65.05366875, longitude: 25.46245575 },
     { latitude: 65.05366875, longitude: 25.377071 }
   ]
 
-  const cell2 = [
+  const cell2: LatLng[] = [
     { latitude: 65.089615, longitude: 25.46245575 },
     { latitude: 65.089615, longitude: 25.5478405 },
     { latitude: 65.05366875, longitude: 25.5478405 },
     { latitude: 65.05366875, longitude: 25.46245575 }
   ]
 
-  const cell3 = [
+  const cell3: LatLng[] = [
     { latitude: 65.089615, longitude: 25.5478405 },
     { latitude: 65.089615, longitude: 25.63322525 },
     { latitude: 65.05366875, longitude: 25.63322525 },
     { latitude: 65.05366875, longitude: 25.5478405 }
   ]
 
-  const cell4 = [
+  const cell4: LatLng[] = [
     { latitude: 65.089615, longitude: 25.63322525 },
     { latitude: 65.089615, longitude: 25.71861 },
     { latitude: 65.05366875, longitude: 25.71861 },
     { latitude: 65.05366875, longitude: 25.63322525 }
   ]
 
-  const cell5 = [
+  const cell5: LatLng[] = [
     { latitude: 65.05366875, longitude: 25.377071 },
     { latitude: 65.05366875, longitude: 25.46245575 },
     { latitude: 65.0177225, longitude: 25.46245575 },
     { latitude: 65.0177225, longitude: 25.377071 }
   ]
 
-  const cell6 = [
+  const cell6: LatLng[] = [
     { latitude: 65.05366875, longitude: 25.46245575 },
     { latitude: 65.05366875, longitude: 25.5478405 },
     { latitude: 65.0177225, longitude: 25.5478405 },
     { latitude: 65.0177225, longitude: 25.46245575 }
   ]
 
-  const cell7 = [
+  const cell7: LatLng[] = [
     { latitude: 65.05366875, longitude: 25.5478405 },
     { latitude: 65.05366875, longitude: 25.63322525 },
     { latitude: 65.0177225, longitude: 25.63322525 },
     { latitude: 65.0177225, longitude: 25.5478405 }
   ]
 
-  const cell8 = [
+  const cell8: LatLng[] = [
     { latitude: 65.05366875, longitude: 25.63322525 },
     { latitude: 65.05366875, longitude: 25.71861 },
     { latitude: 65.0177225, longitude: 25.71861 },
     { latitude: 65.0177225, longitude: 25.63322525 }
   ]
 
-  const cell9 = [
+  const cell9: LatLng[] = [
     { latitude: 65.0177225, longitude: 25.377071 },
     { latitude: 65.0177225, longitude: 25.46245575 },
     { latitude: 64.98177625, longitude: 25.46245575 },
     { latitude: 64.98177625, longitude: 25.377071 }
   ]
 
-  const cell10 = [
+  const cell10: LatLng[] = [
     { latitude: 65.0177225, longitude: 25.46245575 },
     { latitude: 65.0177225, longitude: 25.5478405 },
     { latitude: 64.98177625, longitude: 25.5478405 },
     { latitude: 64.98177625, longitude: 25.46245575 }
   ]
 
-  const cell11 = [
+  const cell11: LatLng[] = [
     { latitude: 65.0177225, longitude: 25.5478405 },
     { latitude: 65.0177225, longitude: 25.63322525 },
     { latitude: 64.98177625, longitude: 25.63322525 },
     { latitude: 64.98177625, longitude: 25.5478405 }
   ]
 
-  const cell12 = [
+  const cell12: LatLng[] = [
     { latitude: 65.0177225, longitude: 25.63322525 },
     { latitude: 65.0177225, longitude: 25.71861 },
     { latitude: 64.98177625, longitude: 25.71861 },
     { latitude: 64.98177625, longitude: 25.63322525 }
   ]
 
-  const cell13 = [
+  const cell13: LatLng[] = [
     { latitude: 64.98177625, longitude: 25.377071 },
     { latitude: 64.98177625, longitude: 25.46245575 },
     { latitude: 64.94583, longitude: 25.46245575 },
     { latitude: 64.94583, longitude: 25.377071 }
   ]
 
-  const cell14 = [
+  const cell14: LatLng[] = [
     { latitude: 64.98177625, longitude: 25.46245575 },
     { latitude: 64.98177625, longitude: 25.5478405 },
     { latitude: 64.94583, longitude: 25.5478405 },
     { latitude: 64.94583, longitude: 25.46245575 }
   ]
 
-  const cell15 = [
+  const cell15: LatLng[] = [
     { latitude: 64.98177625, longitude: 25.5478405 },
     { latitude: 64.98177625, longitude: 25.63322525 },
     { latitude: 64.94583, longitude: 25.63322525 },
     { latitude: 64.94583, longitude: 25.5478405 }
   ]
 
-  const cell16 = [
+  const cell16: LatLng[] = [
     { latitude: 64.98177625, longitude: 25.63322525 },
     { latitude: 64.98177625, longitude: 25.71861 },
     { latitude: 64.94583, longitude: 25.71861 },
@@ -155,7 +167,13 @@ export default function MapViewWithLocation() {
   return (
     <View style={styles.container}>
       
-      <MapView style={styles.map} region={location} showsUserLocation={true}>
+      <MapView style={styles.map} region={region} showsUserLocation={true}>
+        {routeCoords.length > 0 && (
+          <>
+            <Polyline coordinates={routeCoords} strokeWidth={4} strokeColor="#007AFF" />
+            
+          </>
+        )}
         {/*<Polygon coordinates={coords} fillColor='red'></Polygon>*/}
         <Polygon coordinates={cell1} fillColor='#ff000040' />
         <Polygon coordinates={cell2} fillColor='#00ff0040' />
