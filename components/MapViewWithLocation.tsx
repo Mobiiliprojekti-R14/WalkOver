@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import MapView, { Polygon, Region, Polyline, LatLng } from 'react-native-maps'
+import MapView, { Polygon, Region, Polyline, LatLng, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 
 
@@ -12,7 +12,12 @@ export default function MapViewWithLocation() {
   const [region, setRegion] = useState<Region | null>(null);
   const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
 
-useEffect(() => {
+  //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
+  const [debugCoords, setDebugCoords] = useState<LatLng>()
+  const [debugCell, setDebugCell] = useState<number>(-1)
+  const [debugText, setDebugText] = useState<string>("")
+
+  useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") return;
@@ -36,7 +41,7 @@ useEffect(() => {
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setRouteCoords((prev) => [...prev, { latitude, longitude }]);
-          setRegion((r) => r ? { ...r, latitude, longitude, } : null )
+          //setRegion((r) => r ? { ...r, latitude, longitude, } : null ) //<-- tämä rivi aiheuttaa kartan uudelleenzoomauksen?
         }
       );
 
@@ -46,8 +51,7 @@ useEffect(() => {
 
   if (!region) return null;
 
-  
-  const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }]
+  const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
   const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
 
@@ -163,15 +167,102 @@ useEffect(() => {
     { latitude: 64.94583, longitude: 25.63322525 }
   ]
 
+  const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
+    //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
+    //lähinnä apufunktio alempana määritellylle findCell-funktiolle
+
+    let latMin: number = cell[0].latitude
+    let latMax: number = cell[0].latitude
+    let longMin: number = cell[0].longitude
+    let longMax: number = cell[0].longitude
+
+    for (let i=1; i<cell.length; i++) { //alkaa 1:stä, koska 0 on jo käsitelty muuttujien määrittelyssä
+      //käy läpi cellin määrittelevät pisteet (neljä kulmapistettä), ja tallentaa niistä pienimmän/suurimman latituden/longituden
+      latMin = Math.min(latMin, cell[i].latitude)
+      latMax = Math.max(latMax, cell[i].latitude)
+      longMin = Math.min(longMin, cell[i].longitude)
+      longMax = Math.max(longMax, cell[i].longitude)
+    }
+
+    if (coordinate.latitude <= latMin) {
+      //piste on alueen ulkopuolella
+      return false
+    }
+    else if (coordinate.latitude >= latMax) {
+      //piste on alueen ulkopuolella
+      return false
+    }
+    else if (coordinate.longitude <= longMin) {
+      //piste on alueen ulkopuolella
+      return false
+    }
+    else if (coordinate.longitude >= longMax) {
+      //piste on alueen ulkopuolella
+      return false
+    }
+    else {
+      //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
+      return true
+    }
+  }
+
+  const findCell = (coordinate: LatLng): number => {
+    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
+
+    let cellIndex = -1
+
+    if (!isInsideCell(coordinate, coords2)) {//coords2 on koko pelialue (käytännössä iso celli)
+      //piste on pelialueen ulkopuolella
+      console.log("koordinaatti on pelialueen ulkopuolella")
+      return cellIndex
+    }
+
+    const cells = [
+      cell1, cell2, cell3, cell4,
+      cell5, cell6, cell7, cell8,
+      cell9, cell10, cell11, cell12,
+      cell13, cell14, cell15, cell16
+    ] //en keksinyt parempaa tapaa cellien läpi looppaamiseen kuin lisäämällä ne ensin listaan
+
+    for (let i = 0; i<cells.length; i++) {
+      if (isInsideCell(coordinate, cells[i])) {
+        console.log("piste on cellissä ", i+1)
+        cellIndex = i+1
+        break
+      }
+    }
+
+    return cellIndex
+  }
 
   return (
     <View style={styles.container}>
-      
-      <MapView style={styles.map} region={region} showsUserLocation={true}>
+
+      <MapView
+        style={styles.map}
+        region={region}
+        showsUserLocation={true}
+        onPress={(e) => {
+          const onPressCoords = e.nativeEvent.coordinate
+          setDebugCoords(onPressCoords)
+          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+
+          const cellNumber = findCell(onPressCoords)
+          setDebugCell(cellNumber)
+        }}
+        onPoiClick={(e) => {
+          const onPressCoords = e.nativeEvent.coordinate
+          setDebugCoords(onPressCoords)
+          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+
+          const cellNumber = findCell(onPressCoords)
+          setDebugCell(cellNumber)
+        }}
+      >
         {routeCoords.length > 0 && (
           <>
             <Polyline coordinates={routeCoords} strokeWidth={4} strokeColor="#007AFF" />
-            
+
           </>
         )}
         {/*<Polygon coordinates={coords} fillColor='red'></Polygon>*/}
@@ -195,7 +286,15 @@ useEffect(() => {
         <Polygon coordinates={cell15} fillColor='#0000ff40' />
         <Polygon coordinates={cell16} fillColor='#ffff0040' />
 
+        {/* debug marker, voi poistaa myöhemmästä toteutuksesta! */}
+        {debugCoords ? <Marker coordinate={debugCoords} /> : null}
+
       </MapView>
+
+      {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
+      <Text>{debugText}</Text>
+      <Text>cell: {debugCell}</Text>
+
     </View>
   );
 }
@@ -206,6 +305,6 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '100%',
+    height: '90%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
   },
 });
