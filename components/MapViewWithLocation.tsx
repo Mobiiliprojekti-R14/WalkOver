@@ -171,33 +171,28 @@ export default function MapViewWithLocation() {
     //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
     //lähinnä apufunktio alempana määritellylle findCell-funktiolle
 
-    let latMin: number = cell[0].latitude
-    let latMax: number = cell[0].latitude
-    let longMin: number = cell[0].longitude
-    let longMax: number = cell[0].longitude
+    const latitudes = cell.map((point) => { return point.latitude })
+    const longitudes = cell.map((point) => { return point.longitude })
 
-    for (let i=1; i<cell.length; i++) { //alkaa 1:stä, koska 0 on jo käsitelty muuttujien määrittelyssä
-      //käy läpi cellin määrittelevät pisteet (neljä kulmapistettä), ja tallentaa niistä pienimmän/suurimman latituden/longituden
-      latMin = Math.min(latMin, cell[i].latitude)
-      latMax = Math.max(latMax, cell[i].latitude)
-      longMin = Math.min(longMin, cell[i].longitude)
-      longMax = Math.max(longMax, cell[i].longitude)
-    }
+    const latMin = Math.min(...latitudes)
+    const latMax = Math.max(...latitudes)
+    const longMin = Math.min(...longitudes)
+    const longMax = Math.max(...longitudes)
 
     if (coordinate.latitude <= latMin) {
-      //piste on alueen ulkopuolella
+      //piste on cellin alareunan alapuolella
       return false
     }
     else if (coordinate.latitude >= latMax) {
-      //piste on alueen ulkopuolella
+      //piste on cellin yläreunan yläpuolella
       return false
     }
     else if (coordinate.longitude <= longMin) {
-      //piste on alueen ulkopuolella
+      //piste on cellin vasemman reunan vasemmalla puolella
       return false
     }
     else if (coordinate.longitude >= longMax) {
-      //piste on alueen ulkopuolella
+      //piste on cellin oikean reunan oikealla puolella
       return false
     }
     else {
