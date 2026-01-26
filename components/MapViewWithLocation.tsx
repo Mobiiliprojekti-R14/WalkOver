@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region } from 'react-native-maps'
+import { View, Text, StyleSheet } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 
@@ -38,6 +38,10 @@ export default function MapViewWithLocation() {
   // Kartan ref (animateToRegion varten)
   const mapRef = useRef<MapView>(null)
 
+  //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
+  const [debugCoords, setDebugCoords] = useState<LatLng>()
+  const [debugCell, setDebugCell] = useState<number>(-1)
+  const [debugText, setDebugText] = useState<string>("")
 
   useEffect(() => {
     (async () => {
@@ -124,6 +128,8 @@ export default function MapViewWithLocation() {
 
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return null
+  const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
+  const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
 
   const cell1: LatLng[] = [
@@ -238,6 +244,68 @@ export default function MapViewWithLocation() {
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
 
+  const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
+    //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
+    //lähinnä apufunktio alempana määritellylle findCell-funktiolle
+
+    const latitudes = cell.map((point) => { return point.latitude })
+    const longitudes = cell.map((point) => { return point.longitude })
+
+    const latMin = Math.min(...latitudes)
+    const latMax = Math.max(...latitudes)
+    const longMin = Math.min(...longitudes)
+    const longMax = Math.max(...longitudes)
+
+    if (coordinate.latitude <= latMin) {
+      //piste on cellin alareunan alapuolella
+      return false
+    }
+    else if (coordinate.latitude >= latMax) {
+      //piste on cellin yläreunan yläpuolella
+      return false
+    }
+    else if (coordinate.longitude <= longMin) {
+      //piste on cellin vasemman reunan vasemmalla puolella
+      return false
+    }
+    else if (coordinate.longitude >= longMax) {
+      //piste on cellin oikean reunan oikealla puolella
+      return false
+    }
+    else {
+      //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
+      return true
+    }
+  }
+
+  const findCell = (coordinate: LatLng): number => {
+    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
+
+    let cellIndex = -1
+
+    if (!isInsideCell(coordinate, coords2)) {//coords2 on koko pelialue (käytännössä iso celli)
+      //piste on pelialueen ulkopuolella
+      console.log("koordinaatti on pelialueen ulkopuolella")
+      return cellIndex
+    }
+
+    const cells = [
+      cell1, cell2, cell3, cell4,
+      cell5, cell6, cell7, cell8,
+      cell9, cell10, cell11, cell12,
+      cell13, cell14, cell15, cell16
+    ] //en keksinyt parempaa tapaa cellien läpi looppaamiseen kuin lisäämällä ne ensin listaan
+
+    for (let i = 0; i<cells.length; i++) {
+      if (isInsideCell(coordinate, cells[i])) {
+        console.log("piste on cellissä ", i+1)
+        cellIndex = i+1
+        break
+      }
+    }
+
+    return cellIndex
+  }
 
   return (
     <View style={styles.container}>
@@ -249,6 +317,22 @@ export default function MapViewWithLocation() {
         onRegionChangeComplete={() => {
           setIsFollowing(false)
           setLastInteraction(Date.now())
+        }}
+         onPress={(e) => {
+          const onPressCoords = e.nativeEvent.coordinate
+          setDebugCoords(onPressCoords)
+          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+
+          const cellNumber = findCell(onPressCoords)
+          setDebugCell(cellNumber)
+        }}
+        onPoiClick={(e) => {
+          const onPressCoords = e.nativeEvent.coordinate
+          setDebugCoords(onPressCoords)
+          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+
+          const cellNumber = findCell(onPressCoords)
+          setDebugCell(cellNumber)
         }}
       >
         {routeCoords.length > 0 && (
@@ -278,7 +362,15 @@ export default function MapViewWithLocation() {
         <Polygon coordinates={cell14} fillColor="#00ff0040" />
         <Polygon coordinates={cell15} fillColor="#0000ff40" />
         <Polygon coordinates={cell16} fillColor="#ffff0040" />
+        {/* debug marker, voi poistaa myöhemmästä toteutuksesta! */}
+        {debugCoords ? <Marker coordinate={debugCoords} /> : null}
+
       </MapView>
+
+      {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
+      <Text>{debugText}</Text>
+      <Text>cell: {debugCell}</Text>
+
     </View>
   )
 }
@@ -289,7 +381,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '100%',
+    height: '90%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
   },
 })
 
