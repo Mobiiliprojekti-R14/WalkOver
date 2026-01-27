@@ -1,18 +1,11 @@
-import { initializeApp } from "firebase/app";
+// Firebase app init + auth + firestore
+
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-// Firestore helpers
-import {
-    collection,
-    addDoc,
-    serverTimestamp,
-    getDocs,
-    query,
-    orderBy,
-    onSnapshot,
-} from "firebase/firestore";
 
+// Luetaan Firebase config .env-muuttujasta
 const firebaseConfig = {
     apiKey: process.env.EXPO_PUBLIC_APIKEY,
     authDomain: process.env.EXPO_PUBLIC_AUTHDOMAIN,
@@ -22,34 +15,26 @@ const firebaseConfig = {
     appId: process.env.EXPO_PUBLIC_APPID,
 };
 
-// Init Firebase app once
-const app = initializeApp(firebaseConfig);
+// Varmistus: jos env puuttuu
+if (!firebaseConfig.apiKey) {
+    throw new Error("Firebase .env puuttuu: tarkista EXPO_PUBLIC_APIKEY ym")
+}
 
-// Singletons
-const firestore = getFirestore(app);
-const auth = getAuth(app);
+// Init firebase-app vain kerran
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 
-// Collections
-const MESSAGES = "message";
 
-export {
-    // instances
-    firestore,
-    auth,
+// Singletons (koko appi käyttää näitä)
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+//const firestore = getFirestore(app);
+//const auth = getAuth(app);
 
-    // constants
-    MESSAGES,
+// Collections (kokoelmien nimet yhteen paikkaan)
+export const COLLECTIONS = {
+    USERS: "users",
+    USERNAMES: "usernames",
+    // Tähän voi lisätä Cells, Steps, ym ym
+} as const
 
-    // firestore functions
-    collection,
-    addDoc,
-    serverTimestamp,
-    getDocs,
-    query,
-    orderBy,
-    onSnapshot,
-
-    // auth functions
-    signInWithEmailAndPassword,
-};
-
+export { signInWithEmailAndPassword, signOut }
