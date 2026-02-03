@@ -6,12 +6,14 @@ import { signOut } from "firebase/auth"
 import { auth } from "../firebase/Config"
 import { useAuth } from "../src/auth/AuthProvider"
 import MapViewWithLocation from "../components/MapViewWithLocation"
+import MapLibreView from "../components/MapLibreMapView"
 
 export function HomeScreen() {
     const { user } = useAuth()
 
     return (
-        <MapViewWithLocation />
+        //<MapViewWithLocation />
+        <MapLibreView />
         /*
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: "800" }}>Home </Text>

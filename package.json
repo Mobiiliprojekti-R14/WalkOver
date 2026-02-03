@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@maplibre/maplibre-react-native": "^10.4.2",
     "expo": "~54.0.31",
     "expo-dev-client": "~6.0.20",
     "expo-location": "~19.0.8",
