@@ -25,6 +25,25 @@ export type SignUpSuccess = {
     username: string // normalisoitu: trim + lowercase
     displayName: string // Käyttäjän syöttämä "näyttönimi" (trim)
     email: string // trim
+    userColor: string,
+    oulu1: number,
+    oulu2: number,
+    oulu3: number,
+    oulu4: number,
+    oulu5: number,
+    oulu6: number,
+    oulu7: number,
+    oulu8: number,
+    oulu9: number,
+    oulu10: number,
+    oulu11: number,
+    oulu12: number,
+    oulu13: number,
+    oulu14: number,
+    oulu15: number,
+    oulu16: number,
+
+
 }
 
 /**
@@ -175,12 +194,47 @@ export async function signUp(input: SignUpInput): Promise<SignUpSuccess> {
                 email: emailClean,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
+                userColor: "#666",
+                oulu1: 0,
+                oulu2: 0,
+                oulu3: 0,
+                oulu4: 0,
+                oulu5: 0,
+                oulu6: 0,
+                oulu7: 0,
+                oulu8: 0,
+                oulu9: 0,
+                oulu10: 0,
+                oulu11: 0,
+                oulu12: 0,
+                oulu13: 0,
+                oulu14: 0,
+                oulu15: 0,
+                oulu16: 0,
+
             })
 
         })
 
         // 5) Onnistuminen
-        return { uid, username: usernameLower, displayName, email: emailClean }
+        return {
+            uid, username: usernameLower, displayName, email: emailClean, userColor: "#666", oulu1: 0,
+            oulu2: 0,
+            oulu3: 0,
+            oulu4: 0,
+            oulu5: 0,
+            oulu6: 0,
+            oulu7: 0,
+            oulu8: 0,
+            oulu9: 0,
+            oulu10: 0,
+            oulu11: 0,
+            oulu12: 0,
+            oulu13: 0,
+            oulu14: 0,
+            oulu15: 0,
+            oulu16: 0
+        }
     } catch (err: any) {
         // 6) Jos transaktio epäonnistui username-takian, Auth-käyttäjä voi jäädä “orvoksi”.
         // Fiksu siivous: poistetaan juuri luotu Auth user, jos me luotiin se tässä kutsussa.

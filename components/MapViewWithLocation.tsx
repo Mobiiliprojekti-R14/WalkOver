@@ -7,7 +7,7 @@ import PedometerComponent from './PedometerComponent'
 
 const LOCATION_TASK_NAME = 'background-location-task'
 
-// Taustasijainnin käsittelijä
+//austasijainnin käsittelijä
 TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
   console.log("Taskmanager")
   if (error) {
@@ -18,7 +18,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 
   if (data) {
     const { locations } = data as { locations: Location.LocationObject[] }
-     console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
+    console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
   }
 })
 
@@ -358,10 +358,10 @@ useEffect(() => {
       cell13, cell14, cell15, cell16
     ] //en keksinyt parempaa tapaa cellien läpi looppaamiseen kuin lisäämällä ne ensin listaan
 
-    for (let i = 0; i<cells.length; i++) {
+    for (let i = 0; i < cells.length; i++) {
       if (isInsideCell(coordinate, cells[i])) {
-        console.log("piste on cellissä ", i+1)
-        cellIndex = i+1
+        console.log("piste on cellissä ", i + 1)
+        cellIndex = i + 1
         break
       }
     }
@@ -380,7 +380,7 @@ useEffect(() => {
           setIsFollowing(false)
           setLastInteraction(Date.now())
         }}
-         onPress={(e) => {
+        onPress={(e) => {
           const onPressCoords = e.nativeEvent.coordinate
           setDebugCoords(onPressCoords)
           setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
