@@ -50,7 +50,7 @@ export default function PedometerComponent() {
 
   return (
     <View style={styles.container}>
-      <Text>Pedometer available: {isPedometerAvailable}</Text>
+      {/*<Text>Pedometer available: {isPedometerAvailable}</Text>*/}
       <Text>Steps counted now: {currentSteps}</Text>
     </View>
   );
@@ -58,9 +58,15 @@ export default function PedometerComponent() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    padding: 10,
+    borderRadius: 8,
   },
+  text: {
+    color: "black",
+    fontSize: 16,
+  }
 });

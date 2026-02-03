@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import MapView, { Polygon, Polyline, LatLng, Region, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
+import PedometerComponent from './PedometerComponent'
 
 const LOCATION_TASK_NAME = 'background-location-task'
 
@@ -430,6 +431,7 @@ useEffect(() => {
         {debugCoords ? <Marker coordinate={debugCoords} /> : null}
 
       </MapView>
+      {isPlaying && <PedometerComponent />}
 
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
       <Text>{debugText}</Text>
