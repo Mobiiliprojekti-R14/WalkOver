@@ -41,17 +41,17 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAhGjmdrTWbQEIanNL4Sku8lnnmiHPlI14"
+          "apiKey": "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
         }
       },
-      "package": "com.tikkanti.WalkOver"
+      "package": ""
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "2cf2ae67-debc-430c-9817-d2a74579d340"
+        "projectId": ""
       }
     }
   }
