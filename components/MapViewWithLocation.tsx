@@ -189,10 +189,13 @@ useEffect(() => {
   }, [isFollowing, lastInteraction])
 
   // Ei piirretä karttaa ennen initialRegionia
-  if (!initialRegion) return null
-  const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
-  const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
+  if (!initialRegion) return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Fetching location...</Text>
+    </View>
+  )
 
+  const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
   const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
@@ -376,6 +379,7 @@ useEffect(() => {
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation={true}
+        loadingEnabled={true}
         onRegionChangeComplete={() => {
           setIsFollowing(false)
           setLastInteraction(Date.now())
