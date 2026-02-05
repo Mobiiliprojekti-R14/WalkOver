@@ -1,0 +1,144 @@
+{
+  "finland": {
+    "oulu": {
+      "fullGameArea": {
+        "coords": [
+          { "latitude": 65.089615, "longitude": 25.377071 },
+          { "latitude": 65.08917, "longitude": 25.71861 },
+          { "latitude": 64.94528, "longitude": 25.71861 },
+          { "latitude": 64.94583, "longitude": 25.37694 }
+        ]
+      },
+      "cells": [
+        {
+          "coords": [
+            { "latitude": 65.089615, "longitude": 25.377071 },
+            { "latitude": 65.089615, "longitude": 25.46245575 },
+            { "latitude": 65.05366875, "longitude": 25.46245575 },
+            { "latitude": 65.05366875, "longitude": 25.377071 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.089615, "longitude": 25.46245575 },
+            { "latitude": 65.089615, "longitude": 25.5478405 },
+            { "latitude": 65.05366875, "longitude": 25.5478405 },
+            { "latitude": 65.05366875, "longitude": 25.46245575 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.089615, "longitude": 25.5478405 },
+            { "latitude": 65.089615, "longitude": 25.63322525 },
+            { "latitude": 65.05366875, "longitude": 25.63322525 },
+            { "latitude": 65.05366875, "longitude": 25.5478405 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.089615, "longitude": 25.63322525 },
+            { "latitude": 65.089615, "longitude": 25.71861 },
+            { "latitude": 65.05366875, "longitude": 25.71861 },
+            { "latitude": 65.05366875, "longitude": 25.63322525 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.05366875, "longitude": 25.377071 },
+            { "latitude": 65.05366875, "longitude": 25.46245575 },
+            { "latitude": 65.0177225, "longitude": 25.46245575 },
+            { "latitude": 65.0177225, "longitude": 25.377071 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.05366875, "longitude": 25.46245575 },
+            { "latitude": 65.05366875, "longitude": 25.5478405 },
+            { "latitude": 65.0177225, "longitude": 25.5478405 },
+            { "latitude": 65.0177225, "longitude": 25.46245575 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.05366875, "longitude": 25.5478405 },
+            { "latitude": 65.05366875, "longitude": 25.63322525 },
+            { "latitude": 65.0177225, "longitude": 25.63322525 },
+            { "latitude": 65.0177225, "longitude": 25.5478405 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.05366875, "longitude": 25.63322525 },
+            { "latitude": 65.05366875, "longitude": 25.71861 },
+            { "latitude": 65.0177225, "longitude": 25.71861 },
+            { "latitude": 65.0177225, "longitude": 25.63322525 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.0177225, "longitude": 25.377071 },
+            { "latitude": 65.0177225, "longitude": 25.46245575 },
+            { "latitude": 64.98177625, "longitude": 25.46245575 },
+            { "latitude": 64.98177625, "longitude": 25.377071 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.0177225, "longitude": 25.46245575 },
+            { "latitude": 65.0177225, "longitude": 25.5478405 },
+            { "latitude": 64.98177625, "longitude": 25.5478405 },
+            { "latitude": 64.98177625, "longitude": 25.46245575 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.0177225, "longitude": 25.5478405 },
+            { "latitude": 65.0177225, "longitude": 25.63322525 },
+            { "latitude": 64.98177625, "longitude": 25.63322525 },
+            { "latitude": 64.98177625, "longitude": 25.5478405 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 65.0177225, "longitude": 25.63322525 },
+            { "latitude": 65.0177225, "longitude": 25.71861 },
+            { "latitude": 64.98177625, "longitude": 25.71861 },
+            { "latitude": 64.98177625, "longitude": 25.63322525 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 64.98177625, "longitude": 25.377071 },
+            { "latitude": 64.98177625, "longitude": 25.46245575 },
+            { "latitude": 64.94583, "longitude": 25.46245575 },
+            { "latitude": 64.94583, "longitude": 25.377071 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 64.98177625, "longitude": 25.46245575 },
+            { "latitude": 64.98177625, "longitude": 25.5478405 },
+            { "latitude": 64.94583, "longitude": 25.5478405 },
+            { "latitude": 64.94583, "longitude": 25.46245575 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 64.98177625, "longitude": 25.5478405 },
+            { "latitude": 64.98177625, "longitude": 25.63322525 },
+            { "latitude": 64.94583, "longitude": 25.63322525 },
+            { "latitude": 64.94583, "longitude": 25.5478405 }
+          ]
+        },
+        {
+          "coords": [
+            { "latitude": 64.98177625, "longitude": 25.63322525 },
+            { "latitude": 64.98177625, "longitude": 25.71861 },
+            { "latitude": 64.94583, "longitude": 25.71861 },
+            { "latitude": 64.94583, "longitude": 25.63322525 }
+          ]
+        }
+      ]
+    }
+  }
+}

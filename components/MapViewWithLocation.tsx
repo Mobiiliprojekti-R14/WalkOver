@@ -1,9 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker } from 'react-native-maps'
+import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
+
+//import cells from '../cells.json' //ensimmäinen toteutus, vaikeampi ylläpitää
+import cells from '../cells2.json'
+
+type City = {
+  fullGameArea: {
+    coords: LatLng[]
+  },
+  cells: {
+    coords: LatLng[]
+  }[]
+}
 
 const LOCATION_TASK_NAME = 'background-location-task'
 
@@ -196,7 +208,10 @@ export default function MapViewWithLocation() {
   )
 
   const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
+  const fullAreaOulu: LatLng[] = cells.finland.oulu.fullGameArea.coords
 
+  //const cells_oulu1: LatLng[] = cells.finland.oulu.cells.cell1.coords //ensimmäinen toteutus, vaikeampi ylläpitää
+  const oulu1: LatLng[] = cells.finland.oulu.cells[0].coords
   const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
     { latitude: 65.089615, longitude: 25.46245575 },
@@ -309,6 +324,8 @@ export default function MapViewWithLocation() {
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
 
+  const cellColours: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
+
   const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
     //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
     //lähinnä apufunktio alempana määritellylle findCell-funktiolle
@@ -372,6 +389,43 @@ export default function MapViewWithLocation() {
     return cellIndex
   }
 
+  const findCell2 = (coordinate: LatLng, city: City): number => {
+    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
+
+    let cellIndex = -1
+
+    if (!isInsideCell(coordinate, city.fullGameArea.coords)) {
+      //piste on pelialueen ulkopuolella
+      console.log("koordinaatti on pelialueen ulkopuolella")
+      return cellIndex
+    }
+
+    const cells = city.cells
+
+    for (let i = 0; i < cells.length; i++) {
+      if (isInsideCell(coordinate, cells[i].coords)) {
+        console.log("piste on cellissä ", i + 1)
+        cellIndex = i + 1
+        break
+      }
+    }
+
+    return cellIndex
+  }
+
+  const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
+    const onPressCoords = e.nativeEvent.coordinate
+    setDebugCoords(onPressCoords)
+    setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+
+    //const cellNumber = findCell(onPressCoords)
+    const cellNumber2 = findCell2(onPressCoords, cells.finland.oulu)
+    setDebugCell(cellNumber2)
+
+    setIsFollowing(false)
+    setLastInteraction(Date.now())
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -380,26 +434,14 @@ export default function MapViewWithLocation() {
         initialRegion={initialRegion}
         showsUserLocation={true}
         loadingEnabled={true}
+        toolbarEnabled={false}
+        moveOnMarkerPress={false}
         onRegionChangeComplete={() => {
           setIsFollowing(false)
           setLastInteraction(Date.now())
         }}
-        onPress={(e) => {
-          const onPressCoords = e.nativeEvent.coordinate
-          setDebugCoords(onPressCoords)
-          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
-
-          const cellNumber = findCell(onPressCoords)
-          setDebugCell(cellNumber)
-        }}
-        onPoiClick={(e) => {
-          const onPressCoords = e.nativeEvent.coordinate
-          setDebugCoords(onPressCoords)
-          setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
-
-          const cellNumber = findCell(onPressCoords)
-          setDebugCell(cellNumber)
-        }}
+        onPress={(e) => handleMapPress(e)}
+        onPoiClick={(e) => handleMapPress(e)}
       >
         {routeCoords.length > 0 && (
           <Polyline
@@ -410,9 +452,16 @@ export default function MapViewWithLocation() {
         )}
 
 
+        {cells.finland.oulu.cells.map((cell, index) => {
+          return <Polygon key={index} coordinates={cell.coords} fillColor={cellColours[index % 4]}/>
+        })}
 
 
-        <Polygon coordinates={cell1} fillColor="#ff000040" />
+        {/*
+        <Polygon coordinates={cell1} fillColor="#ff000040" tappable={true} onPress={(e) => {
+          console.log("polygon onpress")
+
+        }}/>
         <Polygon coordinates={cell2} fillColor="#00ff0040" />
         <Polygon coordinates={cell3} fillColor="#0000ff40" />
         <Polygon coordinates={cell4} fillColor="#ffff0040" />
@@ -431,6 +480,8 @@ export default function MapViewWithLocation() {
         <Polygon coordinates={cell14} fillColor="#00ff0040" />
         <Polygon coordinates={cell15} fillColor="#0000ff40" />
         <Polygon coordinates={cell16} fillColor="#ffff0040" />
+        */}
+
         {/* debug marker, voi poistaa myöhemmästä toteutuksesta! */}
         {debugCoords ? <Marker coordinate={debugCoords} /> : null}
 
