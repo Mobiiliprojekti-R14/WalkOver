@@ -6,15 +6,46 @@ import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 
 //import cells from '../cells.json' //ensimmäinen toteutus, vaikeampi ylläpitää
-import cells from '../cells2.json'
+//import cells from '../cells2.json'
+//import cells3 from '../cells3.json'
+import cells4 from '../cells4.json'
 
+/*
 type City = {
   fullGameArea: {
     coords: LatLng[]
   },
   cells: {
+    name: string,
     coords: LatLng[]
   }[]
+}*/
+
+/*
+type City3 = {
+  name: string,
+  fullGameArea: {
+    coords: LatLng[]
+  },
+  cells: {
+    name: string,
+    coords: LatLng[]
+  }[]
+}*/
+
+/*
+type CellData = {
+  countries: {
+    name: string,
+    cities: City3[]
+  }[]
+}*/
+
+type CellData2 = {
+  country: string,
+  city: string,
+  name?: string,
+  coords: LatLng[]
 }
 
 const LOCATION_TASK_NAME = 'background-location-task'
@@ -207,11 +238,15 @@ export default function MapViewWithLocation() {
     </View>
   )
 
+  /*
   const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
   const fullAreaOulu: LatLng[] = cells.finland.oulu.fullGameArea.coords
+  const fullAreaOulu3: LatLng[] = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')!!.cities.find((city) => city.name.toLowerCase() === 'oulu')!!.fullGameArea.coords
 
   //const cells_oulu1: LatLng[] = cells.finland.oulu.cells.cell1.coords //ensimmäinen toteutus, vaikeampi ylläpitää
   const oulu1: LatLng[] = cells.finland.oulu.cells[0].coords
+  const oulu1_v3: LatLng[] = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')!!.cities.find((city) => city.name.toLowerCase() === 'oulu')!!.cells[0].coords
+  const oulu1_v4: LatLng[] = cells4[0].coords
   const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
     { latitude: 65.089615, longitude: 25.46245575 },
@@ -323,8 +358,9 @@ export default function MapViewWithLocation() {
     { latitude: 64.94583, longitude: 25.71861 },
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
+  */
 
-  const cellColours: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
+  const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
 
   const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
     //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
@@ -360,7 +396,7 @@ export default function MapViewWithLocation() {
     }
   }
 
-  const findCell = (coordinate: LatLng): number => {
+  /*const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
     let cellIndex = -1
@@ -387,9 +423,9 @@ export default function MapViewWithLocation() {
     }
 
     return cellIndex
-  }
+  }*/
 
-  const findCell2 = (coordinate: LatLng, city: City): number => {
+  /*const findCell2 = (coordinate: LatLng, city: City): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
     let cellIndex = -1
@@ -411,7 +447,69 @@ export default function MapViewWithLocation() {
     }
 
     return cellIndex
+  }*/
+
+  /*
+  const findCell3 = (coordinate: LatLng, city: City3 | undefined): number => {
+    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
+
+    let cellIndex = -1
+
+    if (!city) {
+      console.log("findCell: city parameter was undefined")
+      return cellIndex
+    }
+
+    if (!isInsideCell(coordinate, city.fullGameArea.coords)) {
+      //piste on pelialueen ulkopuolella
+      console.log("koordinaatti on pelialueen ulkopuolella")
+      return cellIndex
+    }
+
+    const cells = city.cells
+
+    for (let i = 0; i < cells.length; i++) {
+      if (isInsideCell(coordinate, cells[i].coords)) {
+        console.log("piste on cellissä ", i + 1)
+        cellIndex = i + 1
+        break
+      }
+    }
+
+    return cellIndex
+  }*/
+
+  const findCell4 = (coordinate: LatLng, cellList: CellData2[]): number => {
+    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
+
+    for (let i = 0; i < cellList.length; i++) {
+      if (isInsideCell(coordinate, cellList[i].coords)) {
+        console.log("piste on cellissä ", i)
+        return i
+      }
+    }
+
+    //piste on pelialueen ulkopuolella
+    console.log("koordinaatti on pelialueen ulkopuolella")
+
+    return -1
   }
+
+  /*
+  const getAllCells = (obj: CellData) => {
+    const cellList = []
+    for (let i=0; i<obj.countries.length; i++) {
+      for (let j=0; j<obj.countries[i].cities.length; j++) {
+        for (let k=0; k<obj.countries[i].cities[j].cells.length; k++) {
+          cellList.push({
+            id: `${i}${j}${k}`,
+            coords: obj.countries[i].cities[j].cells[k].coords
+          })
+        }
+      }
+    }
+    return cellList
+  }*/
 
   const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
@@ -419,8 +517,11 @@ export default function MapViewWithLocation() {
     setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
 
     //const cellNumber = findCell(onPressCoords)
-    const cellNumber2 = findCell2(onPressCoords, cells.finland.oulu)
-    setDebugCell(cellNumber2)
+    //const cellNumber2 = findCell2(onPressCoords, cells.finland.oulu)
+    //const cityOulu: City3 | undefined = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')?.cities.find((city) => city.name.toLowerCase() === 'oulu')
+    //const cellNumber3 = findCell3(onPressCoords, cityOulu)
+    const cellNumber4 = findCell4(onPressCoords, cells4)
+    setDebugCell(cellNumber4)
 
     setIsFollowing(false)
     setLastInteraction(Date.now())
@@ -451,10 +552,22 @@ export default function MapViewWithLocation() {
           />
         )}
 
+        {
+          cells4.map((cell, index) => {
+            return <Polygon key={index} coordinates={cell.coords} fillColor={cellColors[index % 4]} />
+          })
+        }
 
-        {cells.finland.oulu.cells.map((cell, index) => {
-          return <Polygon key={index} coordinates={cell.coords} fillColor={cellColours[index % 4]}/>
-        })}
+        {/*
+        getAllCells(cells3).map((cell, index) => {
+          return <Polygon key={cell.id} coordinates={cell.coords} fillColor={cellColors[index % 4]} />
+        })
+        */}
+
+
+        {/*cells.finland.oulu.cells.map((cell, index) => {
+          return <Polygon key={cell.name} coordinates={cell.coords} fillColor={cellColors[index % 4]}/>
+        })*/}
 
 
         {/*
