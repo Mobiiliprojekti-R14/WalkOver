@@ -15,6 +15,7 @@ export type UserProfile = {
     displayName: string | null
     username: string | null
     email: string | null
+    cells: number[] | null
 }
 // Contextin muoto
 type AuthContextValue = {
@@ -22,6 +23,8 @@ type AuthContextValue = {
     loading: boolean
     profile: UserProfile | null
     profileLoading: boolean
+    stepsInCell: number[]
+    setStepsInCell: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 
@@ -33,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [profile, setProfile] = useState<UserProfile | null>(null)
     const [profileLoading, setProfileLoading] = useState(false)
+    const [stepsInCell, setStepsInCell] = useState<number[]>(Array(16).fill(0))
 
     // Loading = tosi kunnes Firebase on kertonut auth-tilan ensimmäisen kerran
     const [loading, setLoading] = useState(true)
@@ -67,15 +71,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (cancelled) return
 
                 if (snap.exists()) {
-                    const data = snap.data() as { displayName?: string, username?: string }
+                    const data = snap.data() as { 
+                        displayName?: string,
+                        username?: string,
+                        oulu1?: number,
+                        oulu2?: number,
+                        oulu3?: number,
+                        oulu4?: number,
+                        oulu5?: number,
+                        oulu6?: number,
+                        oulu7?: number,
+                        oulu8?: number,
+                        oulu9?: number,
+                        oulu10?: number,
+                        oulu11?: number,
+                        oulu12?: number,
+                        oulu13?: number,
+                        oulu14?: number,
+                        oulu15?: number,
+                        oulu16?: number
+                    }
                     setProfile({
                         displayName: data.displayName ?? null,
                         username: data.username ?? null,
                         email,
+                        cells: [
+                            data.oulu1 ?? 0,
+                            data.oulu2 ?? 0,
+                            data.oulu3 ?? 0,
+                            data.oulu4 ?? 0,
+                            data.oulu5 ?? 0,
+                            data.oulu6 ?? 0,
+                            data.oulu7 ?? 0,
+                            data.oulu8 ?? 0,
+                            data.oulu9 ?? 0,
+                            data.oulu10 ?? 0,
+                            data.oulu11 ?? 0,
+                            data.oulu12 ?? 0,
+                            data.oulu13 ?? 0,
+                            data.oulu14 ?? 0,
+                            data.oulu15 ?? 0,
+                            data.oulu16 ?? 0
+                        ]
                     })
                 } else {
                     // Profiilia ei vielä ole -> pidetään email mukana
-                    setProfile({ displayName: null, username: null, email })
+                    setProfile({ displayName: null, username: null, email, cells: Array(16).fill(0) })
                 }
             } catch (e) {
                 console.warn("Profiilin lataus epäonnistui", e)
@@ -83,7 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     setProfile({
                         displayName: null,
                         username: null,
-                        email: user.email ?? null
+                        email: user.email ?? null,
+                        cells: Array(16).fill(0)
                     })
                 }
             } finally {
@@ -98,8 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [user])
 
     const value = useMemo(
-        () => ({ user, loading, profile, profileLoading }),
-        [user, loading, profile, profileLoading]
+        () => ({ user, loading, profile, profileLoading, stepsInCell, setStepsInCell }),
+        [user, loading, profile, profileLoading, stepsInCell]
     )
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

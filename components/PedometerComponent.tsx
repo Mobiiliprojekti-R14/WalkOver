@@ -2,8 +2,16 @@ import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import { Subscription } from 'expo-sensors/build/Pedometer';
+import { updateDoc, doc, increment } from "firebase/firestore"
+import { db } from "../firebase/Config"
+import { useAuth } from "../src/auth/AuthProvider"
 
-export default function PedometerComponent() {
+
+
+export default function PedometerComponent({ cellNumber }: { cellNumber: number }) {
+
+  const { user } = useAuth()
+
 
   const [isPedometerAvailable, setIsPedometerAvailable] = useState<string>('checking')
   const [currentSteps, setCurrentSteps] = useState<number>(0)
@@ -29,12 +37,28 @@ export default function PedometerComponent() {
       // Aloitetaan askelien seuranta
 
       let lastSavedSteps = 0
+      let isSaving = false
 
-      subscription = Pedometer.watchStepCount(result => {
+      subscription = Pedometer.watchStepCount(async result => {
+        if (!user) return
         setCurrentSteps(result.steps)
+        if (isSaving) return
 
-        if(result.steps - lastSavedSteps >=50) {
-          //TÄHÄN VÄLIIN TEHDÄÄN TALLENNUS TIETOKANTAAN
+        if (result.steps - lastSavedSteps >= 20) {
+          isSaving = true
+          console.log("lisätään tietokantaan askelmäärä: ", result.steps-lastSavedSteps)
+          if (cellNumber >= 1 && cellNumber <= 16) {
+            const field = `oulu${cellNumber}`
+
+            try {
+              await updateDoc(doc(db, "users", user.uid), {
+                [field]: increment(result.steps-lastSavedSteps)
+              })
+            } finally {
+              isSaving = false
+            }
+          }
+
           lastSavedSteps = result.steps
         }
       })
