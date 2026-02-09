@@ -42,9 +42,11 @@ export function AccountMenuScreen({ navigation }: Props) {
             <View style={[styles.panel,
             {
                 width: panelW,
-                paddingTop: 1 + insets.top,
+                //paddingTop: 1 + insets.top,
+                marginTop: 1 + insets.top,
                 paddingBottom: 12,
                 marginBottom: insets.bottom // paneeli loppuu enen nav baria
+
             }]}>
                 <View style={styles.panelHeader}>
                     <Text style={styles.panelTitle}>Tili</Text>
@@ -69,7 +71,7 @@ export function AccountMenuScreen({ navigation }: Props) {
                 </View>
 
                 <MenuItem title="Profiili" onPress={() => navigation.navigate("Profile")} />
-                <MenuItem title="Asetukset" onPress={() => navigation.navigate("DummySettings")} />
+                <MenuItem title="Asetukset" onPress={() => navigation.navigate("Settings")} />
 
 
                 <View style={styles.divider} />
