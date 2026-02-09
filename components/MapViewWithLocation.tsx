@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent } from 'react-native-maps'
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
@@ -9,6 +9,7 @@ import PedometerComponent from './PedometerComponent'
 //import cells from '../cells2.json'
 //import cells3 from '../cells3.json'
 import cells4 from '../cells4.json'
+import { Icon, IconButton } from 'react-native-paper'
 
 /*
 type City = {
@@ -106,6 +107,12 @@ export default function MapViewWithLocation() {
 
   // Kartan ref (animateToRegion varten)
   const mapRef = useRef<MapView>(null)
+
+  // marker ref (väliaikainen testi)
+  const markerRef = useRef<MapMarker>(null)
+
+  //cell info modal
+  const [modalVisible, setModalVisible] = useState(false)
 
   //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
   const [debugCoords, setDebugCoords] = useState<LatLng>()
@@ -234,7 +241,8 @@ export default function MapViewWithLocation() {
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Fetching location...</Text>
+      <Text style={{margin: 8}}>Fetching location...</Text>
+      <ActivityIndicator />
     </View>
   )
 
@@ -484,8 +492,8 @@ export default function MapViewWithLocation() {
 
     for (let i = 0; i < cellList.length; i++) {
       if (isInsideCell(coordinate, cellList[i].coords)) {
-        console.log("piste on cellissä ", i)
-        return i
+        console.log("piste on cellissä ", i + 1)
+        return i + 1
       }
     }
 
@@ -523,6 +531,18 @@ export default function MapViewWithLocation() {
     const cellNumber4 = findCell4(onPressCoords, cells4)
     setDebugCell(cellNumber4)
 
+
+    //väliaikainen demo
+    if (cellNumber4 === 1) {
+      setModalVisible(true)
+    }
+    else if (cellNumber4 === 2) {
+      Alert.alert(`Cell #${cellNumber4}`, `Captured by: xyz\nSteps required to capture: 1500`)
+    }
+    else if (cellNumber4 === 3) {
+      markerRef.current?.showCallout()
+    }
+
     setIsFollowing(false)
     setLastInteraction(Date.now())
   }
@@ -554,7 +574,10 @@ export default function MapViewWithLocation() {
 
         {
           cells4.map((cell, index) => {
-            return <Polygon key={index} coordinates={cell.coords} fillColor={cellColors[index % 4]} />
+            return <Polygon
+              key={index}
+              coordinates={cell.coords}
+              fillColor={cellColors[index % 4]} />
           })
         }
 
@@ -596,9 +619,57 @@ export default function MapViewWithLocation() {
         */}
 
         {/* debug marker, voi poistaa myöhemmästä toteutuksesta! */}
-        {debugCoords ? <Marker coordinate={debugCoords} /> : null}
+        {debugCoords ? (
+          <Marker coordinate={debugCoords} opacity={1} ref={markerRef} title='test title' description='test description' icon={4}>
+            {/*<Icon source='circle-outline' size={20} color='#ff0000'></Icon>*/}
+            {/*
+            <Callout>
+              <View style={{width: 100, height: 200}}>
+                <Text>Cell #{debugCell}</Text>
+                <Text>Captured by: xyz</Text>
+                <Text>Steps required to capture: 1500</Text>
+              </View>
+            </Callout>*/}
+          </Marker>) : null}
 
       </MapView>
+
+      <Modal
+        animationType='fade'
+        visible={modalVisible}
+        transparent={true}
+        onRequestClose={() => {
+          setModalVisible(false)
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <IconButton
+              style={{ alignSelf: 'flex-end' }}
+              icon='close'
+              onPress={() => {
+                setModalVisible(false)
+              }}
+            />
+            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
+            <View>
+              <Text>Captured by: xyz</Text>
+              <Text>Steps required to capture: 1500</Text>
+            </View>
+            {/*
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => {
+                setModalVisible(false)
+              }}
+            >
+              <Text style={styles.textStyle}>Close</Text>
+            </Pressable>
+            */}
+          </View>
+        </View>
+      </Modal>
+
       {isPlaying && <PedometerComponent />}
 
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
@@ -643,5 +714,42 @@ const styles = StyleSheet.create({
   playText: {
     fontSize: 20,
     color: "white"
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 })
