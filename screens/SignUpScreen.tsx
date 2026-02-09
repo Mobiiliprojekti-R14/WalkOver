@@ -183,10 +183,10 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
-    switchLink: {
-        marginTop: 12,
-        alignSelf: "center",
-    },
+    //switchLink: {
+    //    marginTop: 12,
+    //    alignSelf: "center",
+    //},
     switchText: {
         textAlign: "center",
     },

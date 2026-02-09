@@ -1,17 +1,17 @@
-
 import { auth, db } from '../../firebase/Config'
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 
 
 //Kirjautuminen nimimerkillä
-export const login = async (username: string, password: string) => {
+export const login = async (usernameInput: string, password: string) => {
 
     try {
+        const normalizedUsername = usernameInput.trim().toLowerCase()
         //Etsitään Firestoresta dokumentti, jossa username täsmää
         console.log("Haetaan Firestoresta")
         const usersRef = collection(db, "users") //Tarkistellaan users kansiota
-        const q = query(usersRef, where("username", "==", username.trim())) //Etsitään vastaava käyttäjänimi
+        const q = query(usersRef, where("username", "==", normalizedUsername)) //Etsitään vastaava käyttäjänimi
 
         console.log("Odotetaan vastausta")
         const searchResult = await getDocs(q)

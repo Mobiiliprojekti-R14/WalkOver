@@ -1,25 +1,48 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import MapView, { Polygon, Polyline, LatLng, Region, Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
+import PedometerComponent from './PedometerComponent'
 
 const LOCATION_TASK_NAME = 'background-location-task'
 
-// Taustasijainnin käsittelijä
+//Taustasijainnin käsittelijä
 TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+  console.log("Taskmanager")
   if (error) {
+
     console.error('Background task error:', error)
     return
   }
 
   if (data) {
     const { locations } = data as { locations: Location.LocationObject[] }
-     //console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
+    console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
   }
 })
 
 export default function MapViewWithLocation() {
+
+  // Poistetaan vanha task jos sellainen on päällä
+  useEffect(() => {
+    const stopOldTask = async () => {
+      // Anna Expon rekisteröityä ensin
+      await new Promise(res => setTimeout(res, 300))
+
+      const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME)
+      console.log("Käynnistyksessä, onko taustatehtävä käynnissä:", running)
+
+      if (running) {
+        console.log("Pysäytetään vanha taustatehtävä")
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+      }
+    }
+
+    stopOldTask()
+  }, [])
+
+
   // Ensimmäinen alue kartalle (initialRegion)
   const [initialRegion, setInitialRegion] = useState<Region | null>(null)
 
@@ -35,6 +58,9 @@ export default function MapViewWithLocation() {
   // Milloin käyttäjä viimeksi liikutti karttaa
   const [lastInteraction, setLastInteraction] = useState(Date.now())
 
+  // Onko käyttäjä painanut Pelaa-nappia
+  const [isPlaying, setIsPlaying] = useState(false)
+
   // Kartan ref (animateToRegion varten)
   const mapRef = useRef<MapView>(null)
 
@@ -43,6 +69,7 @@ export default function MapViewWithLocation() {
   const [debugCell, setDebugCell] = useState<number>(-1)
   const [debugText, setDebugText] = useState<string>("")
 
+  // Ensimmäisen sijainnin haku heti kun karttanäkymä avataan
   useEffect(() => {
     (async () => {
       // Pyydetään foreground‑lupa
@@ -53,17 +80,6 @@ export default function MapViewWithLocation() {
       const { status: bg } = await Location.requestBackgroundPermissionsAsync()
       if (bg !== 'granted') return
 
-      // Käynnistetään sijainnin haku
-      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Highest,
-        timeInterval: 2000,
-        distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTAAMISESSA SAA ENEMMÄN PÄIVITYKSIÄ
-        showsBackgroundLocationIndicator: true,
-        foregroundService: {
-          notificationTitle: 'Tracking location',
-          notificationBody: 'Your location is being tracked',
-        },
-      })
 
       // Haetaan ensimmäinen sijainti kartan keskitystä varten
       const loc = await Location.getCurrentPositionAsync({})
@@ -80,25 +96,71 @@ export default function MapViewWithLocation() {
       setCurrentLocation({ latitude, longitude })
       setRouteCoords([{ latitude, longitude }])
 
-      // Reaaliaikainen seuranta
-      const sub = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.Highest,
-          timeInterval: 2000,
-          distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTAAMISESSA SAA ENEMMÄN PÄIVITYKSIÄ
-        },
-        (pos) => {
-          const { latitude, longitude } = pos.coords
-
-          setCurrentLocation({ latitude, longitude })
-          setRouteCoords((prev) => [...prev, { latitude, longitude }])
-        }
-      )
-
-      // Siivous kun komponentti unmountataan
-      return () => sub.remove()
     })()
   }, [])
+
+  // Sijainnin päivitys backgroundissa (kun käyttäjä pelaa)
+  useEffect(() => {
+    const toggleTracking = async () => {
+      if (isPlaying) {
+        await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+          accuracy: Location.Accuracy.Highest,
+          timeInterval: 2000,
+          distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTIVAIHEESSA SAADAAN ENEMMÄN SIJAINTIPÄIVITYKSIÄ
+          showsBackgroundLocationIndicator: true,
+          foregroundService: {
+            notificationTitle: 'Tracking location',
+            notificationBody: 'Your location is being tracked',
+          },
+        })
+        console.log("Taustaseuranta käynnissä")
+      } else {
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+        console.log("Taustaseuranta pysäytetty")
+      }
+    }
+
+    toggleTracking()
+  }, [isPlaying])
+
+  // Sijainnin päivitys foregroundissa (kun käyttäjä pelaa)
+  const watchRef = useRef<Location.LocationSubscription | null>(null)
+
+  useEffect(() => {
+    const manageWatch = async () => {
+      if (isPlaying) {
+        const sub = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.Highest,
+            timeInterval: 2000,
+            distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTIVAIHEESSA SAADAAN ENEMMÄN SIJAINTIPÄIVITYKSIÄ
+          },
+          (pos) => {
+            const { latitude, longitude } = pos.coords
+            setCurrentLocation({ latitude, longitude })
+            setRouteCoords((prev) => [...prev, { latitude, longitude }])
+          }
+        )
+        watchRef.current = sub
+      } else {
+        if (watchRef.current) {
+          watchRef.current.remove()
+          watchRef.current = null
+        }
+      }
+    }
+
+    manageWatch()
+  }, [isPlaying])
+
+  // Lopetetaan sijainnin haku kun sovellus suljetaan (ei jää kuluttamaan akkua)
+  useEffect(() => {
+    return () => {
+      Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+    }
+  }, [])
+
+
 
 
   // Keskitetään kartta käyttäjään
@@ -296,10 +358,10 @@ export default function MapViewWithLocation() {
       cell13, cell14, cell15, cell16
     ] //en keksinyt parempaa tapaa cellien läpi looppaamiseen kuin lisäämällä ne ensin listaan
 
-    for (let i = 0; i<cells.length; i++) {
+    for (let i = 0; i < cells.length; i++) {
       if (isInsideCell(coordinate, cells[i])) {
-        console.log("piste on cellissä ", i+1)
-        cellIndex = i+1
+        console.log("piste on cellissä ", i + 1)
+        cellIndex = i + 1
         break
       }
     }
@@ -318,7 +380,7 @@ export default function MapViewWithLocation() {
           setIsFollowing(false)
           setLastInteraction(Date.now())
         }}
-         onPress={(e) => {
+        onPress={(e) => {
           const onPressCoords = e.nativeEvent.coordinate
           setDebugCoords(onPressCoords)
           setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
@@ -343,6 +405,9 @@ export default function MapViewWithLocation() {
           />
         )}
 
+
+
+
         <Polygon coordinates={cell1} fillColor="#ff000040" />
         <Polygon coordinates={cell2} fillColor="#00ff0040" />
         <Polygon coordinates={cell3} fillColor="#0000ff40" />
@@ -366,10 +431,22 @@ export default function MapViewWithLocation() {
         {debugCoords ? <Marker coordinate={debugCoords} /> : null}
 
       </MapView>
+      {isPlaying && <PedometerComponent />}
 
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
       <Text>{debugText}</Text>
       <Text>cell: {debugCell}</Text>
+
+
+      <TouchableOpacity
+        style={styles.playButton}
+        onPress={() => setIsPlaying(prev => !prev)}
+      >
+        <Text style={styles.playText}>
+          {isPlaying ? "Stop playing" : "Start playing"}
+        </Text>
+      </TouchableOpacity>
+
 
     </View>
   )
@@ -383,5 +460,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '90%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
   },
+  playButton: {
+    position: "absolute",
+    bottom: 100,
+    left: 70,
+    right: 70,
+    alignItems: "center",
+    backgroundColor: "#007AFF",
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    elevation: 4,
+  },
+  playText: {
+    fontSize: 20,
+    color: "white"
+  }
 })
-
