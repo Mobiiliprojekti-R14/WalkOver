@@ -74,6 +74,7 @@ export function MenuScreen({ navigation }: Props) {
 
                 {/* Menu items */}
                 <MenuItem title="Dummy sivu" onPress={() => navigation.navigate("Dummy")} />
+                <MenuItem title="Testisivu" onPress={() => navigation.navigate("Testisivu")} />
 
                 <View style={styles.divider} />
 

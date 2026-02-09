@@ -7,11 +7,11 @@ import PedometerComponent from './PedometerComponent'
 
 const LOCATION_TASK_NAME = 'background-location-task'
 
-//austasijainnin käsittelijä
+//Taustasijainnin käsittelijä
 TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
   console.log("Taskmanager")
   if (error) {
-    
+
     console.error('Background task error:', error)
     return
   }
@@ -26,21 +26,21 @@ export default function MapViewWithLocation() {
 
   // Poistetaan vanha task jos sellainen on päällä
   useEffect(() => {
-  const stopOldTask = async () => {
-    // Anna Expon rekisteröityä ensin
-    await new Promise(res => setTimeout(res, 300))
+    const stopOldTask = async () => {
+      // Anna Expon rekisteröityä ensin
+      await new Promise(res => setTimeout(res, 300))
 
-    const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME)
-    console.log("Käynnistyksessä, onko taustatehtävä käynnissä:", running)
+      const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME)
+      console.log("Käynnistyksessä, onko taustatehtävä käynnissä:", running)
 
-    if (running) {
-      console.log("Pysäytetään vanha taustatehtävä")
-      await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+      if (running) {
+        console.log("Pysäytetään vanha taustatehtävä")
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+      }
     }
-  }
 
-  stopOldTask()
-}, [])
+    stopOldTask()
+  }, [])
 
 
   // Ensimmäinen alue kartalle (initialRegion)
@@ -101,67 +101,67 @@ export default function MapViewWithLocation() {
 
   // Sijainnin päivitys backgroundissa (kun käyttäjä pelaa)
   useEffect(() => {
-  const toggleTracking = async () => {
-    if (isPlaying) {
-      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Highest,
-        timeInterval: 2000,
-        distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTIVAIHEESSA SAADAAN ENEMMÄN SIJAINTIPÄIVITYKSIÄ
-        showsBackgroundLocationIndicator: true,
-        foregroundService: {
-          notificationTitle: 'Tracking location',
-          notificationBody: 'Your location is being tracked',
-        },
-      })
-      console.log("Taustaseuranta käynnissä")
-    } else {
-      await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
-      console.log("Taustaseuranta pysäytetty")
-    }
-  }
-
-  toggleTracking()
-}, [isPlaying])
-
-// Sijainnin päivitys foregroundissa (kun käyttäjä pelaa)
-const watchRef = useRef<Location.LocationSubscription | null>(null)
-
-useEffect(() => {
-  const manageWatch = async () => {
-    if (isPlaying) {
-      const sub = await Location.watchPositionAsync(
-        {
+    const toggleTracking = async () => {
+      if (isPlaying) {
+        await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
           accuracy: Location.Accuracy.Highest,
           timeInterval: 2000,
           distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTIVAIHEESSA SAADAAN ENEMMÄN SIJAINTIPÄIVITYKSIÄ
-        },
-        (pos) => {
-          const { latitude, longitude } = pos.coords
-          setCurrentLocation({ latitude, longitude })
-          setRouteCoords((prev) => [...prev, { latitude, longitude }])
-        }
-      )
-      watchRef.current = sub
-    } else {
-      if (watchRef.current) {
-        watchRef.current.remove()
-        watchRef.current = null
+          showsBackgroundLocationIndicator: true,
+          foregroundService: {
+            notificationTitle: 'Tracking location',
+            notificationBody: 'Your location is being tracked',
+          },
+        })
+        console.log("Taustaseuranta käynnissä")
+      } else {
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+        console.log("Taustaseuranta pysäytetty")
       }
     }
-  }
 
-  manageWatch()
-}, [isPlaying])
+    toggleTracking()
+  }, [isPlaying])
 
-// Lopetetaan sijainnin haku kun sovellus suljetaan (ei jää kuluttamaan akkua)
-useEffect(() => {
-  return () => {
-    Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
-  }
-}, [])
+  // Sijainnin päivitys foregroundissa (kun käyttäjä pelaa)
+  const watchRef = useRef<Location.LocationSubscription | null>(null)
+
+  useEffect(() => {
+    const manageWatch = async () => {
+      if (isPlaying) {
+        const sub = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.Highest,
+            timeInterval: 2000,
+            distanceInterval: 0.1, // TÄTÄ SUUREMMAKSI MYÖHEMMIN, TESTIVAIHEESSA SAADAAN ENEMMÄN SIJAINTIPÄIVITYKSIÄ
+          },
+          (pos) => {
+            const { latitude, longitude } = pos.coords
+            setCurrentLocation({ latitude, longitude })
+            setRouteCoords((prev) => [...prev, { latitude, longitude }])
+          }
+        )
+        watchRef.current = sub
+      } else {
+        if (watchRef.current) {
+          watchRef.current.remove()
+          watchRef.current = null
+        }
+      }
+    }
+
+    manageWatch()
+  }, [isPlaying])
+
+  // Lopetetaan sijainnin haku kun sovellus suljetaan (ei jää kuluttamaan akkua)
+  useEffect(() => {
+    return () => {
+      Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
+    }
+  }, [])
 
 
-  
+
 
   // Keskitetään kartta käyttäjään
   useEffect(() => {
@@ -439,13 +439,13 @@ useEffect(() => {
 
 
       <TouchableOpacity
-  style={styles.playButton}
-  onPress={() => setIsPlaying(prev => !prev)}
->
-  <Text style={styles.playText}>
-    {isPlaying ? "Stop playing" : "Start playing"}
-  </Text>
-</TouchableOpacity>
+        style={styles.playButton}
+        onPress={() => setIsPlaying(prev => !prev)}
+      >
+        <Text style={styles.playText}>
+          {isPlaying ? "Stop playing" : "Start playing"}
+        </Text>
+      </TouchableOpacity>
 
 
     </View>

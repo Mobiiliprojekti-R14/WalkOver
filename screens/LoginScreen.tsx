@@ -54,24 +54,26 @@ export function LoginScreen({ onSwitchToSignUp }: Props) {
           />
 
           <View style={styles.buttonRow}>
-            {/*<Button
-              mode="text"
-              onPress={() => console.log('Siirrytään rekisteröitymään')}
-              style={styles.signInButton}
-            > Luo käyttäjä </Button>*/}
+
+
             <Button
-              mode="text"
+              mode="outlined"
+              onPress={onSwitchToSignUp}
+              style={styles.sideButton}
+            >
+              Luo tili
+            </Button>
+
+            <Button
+              mode="contained"
               onPress={handleLogin}
               style={styles.logInButton}
-            > Kirjaudu </Button>
+            > Kirjaudu
+            </Button>
+
           </View>
-          <Text
-            variant="bodyMedium"
-            style={[styles.switchText && styles.disabledText]}
-            onPress={onSwitchToSignUp}
-          >
-            <Text style={styles.switchTextBold}>Luo tili</Text>
-          </Text>
+
+
         </Card.Content>
       </Card>
     </View>
@@ -108,13 +110,19 @@ const styles = StyleSheet.create({
   buttonRow: {
     marginTop: 15,
     flexDirection: 'row',
-    justifyContent: 'flex-end'
+    justifyContent: "space-between",
+    gap: 12,
+
+  },
+  sideButton: {
+    flex: 1,
   },
   logInButton: {
 
+    flex: 1,
   },
   switchText: {
-  
+    textAlign: "center",
   },
   disabledText: {
 

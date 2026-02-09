@@ -16,7 +16,11 @@ import { AvatarButton } from "../../components/AvatarButton"
 
 // Valikkosivut
 import { DummyTestScreen } from "../../screens/DummyTestScreen"
-import { DummySettingsScreen } from "../../screens/DummySettingsScreen"
+import { Testisivu } from "../../screens/Testisivu"
+
+
+// Käyttäjän sivut
+import { UserSettingsScreen } from "../../screens/UserSettingsScreen"
 
 
 export type AppStackParamList = {
@@ -24,16 +28,16 @@ export type AppStackParamList = {
     Menu: undefined
     Profile: undefined
     HowToPlay: undefined
-    Settings: undefined
     About: undefined
     AccountMenu: undefined
 
     // Valikkosivut
     Dummy: undefined
+    Testisivu: undefined
 
 
     // Accountsivut
-    DummySettings: undefined
+    Settings: undefined
 }
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
@@ -95,10 +99,10 @@ export function AppStackNavigator() {
 
             {/* Menu-sivut */}
             <Stack.Screen name="Dummy" component={DummyTestScreen} options={{ title: "DummyTesti sivu" }} />
-
+            <Stack.Screen name="Testisivu" component={Testisivu} options={{ title: "Testisivu2" }} />
 
             {/* Account-sivut */}
-            <Stack.Screen name="DummySettings" component={DummySettingsScreen} options={{ title: "DummySettings sivu" }} />
+            <Stack.Screen name="Settings" component={UserSettingsScreen} options={{ title: "Asetukset" }} />
 
         </Stack.Navigator>
     )
