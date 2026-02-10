@@ -1,0 +1,166 @@
+{
+  "countries": [
+    {
+      "name": "finland",
+      "cities": [
+        {
+          "name": "oulu",
+          "fullGameArea": {
+            "coords": [
+              { "latitude": 65.089615, "longitude": 25.377071 },
+              { "latitude": 65.08917, "longitude": 25.71861 },
+              { "latitude": 64.94528, "longitude": 25.71861 },
+              { "latitude": 64.94583, "longitude": 25.37694 }
+            ]
+          },
+          "cells": [
+            {
+              "name": "oulu1",
+              "coords": [
+                { "latitude": 65.089615, "longitude": 25.377071 },
+                { "latitude": 65.089615, "longitude": 25.46245575 },
+                { "latitude": 65.05366875, "longitude": 25.46245575 },
+                { "latitude": 65.05366875, "longitude": 25.377071 }
+              ]
+            },
+            {
+              "name": "oulu2",
+              "coords": [
+                { "latitude": 65.089615, "longitude": 25.46245575 },
+                { "latitude": 65.089615, "longitude": 25.5478405 },
+                { "latitude": 65.05366875, "longitude": 25.5478405 },
+                { "latitude": 65.05366875, "longitude": 25.46245575 }
+              ]
+            },
+            {
+              "name": "oulu3",
+              "coords": [
+                { "latitude": 65.089615, "longitude": 25.5478405 },
+                { "latitude": 65.089615, "longitude": 25.63322525 },
+                { "latitude": 65.05366875, "longitude": 25.63322525 },
+                { "latitude": 65.05366875, "longitude": 25.5478405 }
+              ]
+            },
+            {
+              "name": "oulu4",
+              "coords": [
+                { "latitude": 65.089615, "longitude": 25.63322525 },
+                { "latitude": 65.089615, "longitude": 25.71861 },
+                { "latitude": 65.05366875, "longitude": 25.71861 },
+                { "latitude": 65.05366875, "longitude": 25.63322525 }
+              ]
+            },
+            {
+              "name": "oulu5",
+              "coords": [
+                { "latitude": 65.05366875, "longitude": 25.377071 },
+                { "latitude": 65.05366875, "longitude": 25.46245575 },
+                { "latitude": 65.0177225, "longitude": 25.46245575 },
+                { "latitude": 65.0177225, "longitude": 25.377071 }
+              ]
+            },
+            {
+              "name": "oulu6",
+              "coords": [
+                { "latitude": 65.05366875, "longitude": 25.46245575 },
+                { "latitude": 65.05366875, "longitude": 25.5478405 },
+                { "latitude": 65.0177225, "longitude": 25.5478405 },
+                { "latitude": 65.0177225, "longitude": 25.46245575 }
+              ]
+            },
+            {
+              "name": "oulu7",
+              "coords": [
+                { "latitude": 65.05366875, "longitude": 25.5478405 },
+                { "latitude": 65.05366875, "longitude": 25.63322525 },
+                { "latitude": 65.0177225, "longitude": 25.63322525 },
+                { "latitude": 65.0177225, "longitude": 25.5478405 }
+              ]
+            },
+            {
+              "name": "oul8",
+              "coords": [
+                { "latitude": 65.05366875, "longitude": 25.63322525 },
+                { "latitude": 65.05366875, "longitude": 25.71861 },
+                { "latitude": 65.0177225, "longitude": 25.71861 },
+                { "latitude": 65.0177225, "longitude": 25.63322525 }
+              ]
+            },
+            {
+              "name": "oulu9",
+              "coords": [
+                { "latitude": 65.0177225, "longitude": 25.377071 },
+                { "latitude": 65.0177225, "longitude": 25.46245575 },
+                { "latitude": 64.98177625, "longitude": 25.46245575 },
+                { "latitude": 64.98177625, "longitude": 25.377071 }
+              ]
+            },
+            {
+              "name": "oulu10",
+              "coords": [
+                { "latitude": 65.0177225, "longitude": 25.46245575 },
+                { "latitude": 65.0177225, "longitude": 25.5478405 },
+                { "latitude": 64.98177625, "longitude": 25.5478405 },
+                { "latitude": 64.98177625, "longitude": 25.46245575 }
+              ]
+            },
+            {
+              "name": "oulu11",
+              "coords": [
+                { "latitude": 65.0177225, "longitude": 25.5478405 },
+                { "latitude": 65.0177225, "longitude": 25.63322525 },
+                { "latitude": 64.98177625, "longitude": 25.63322525 },
+                { "latitude": 64.98177625, "longitude": 25.5478405 }
+              ]
+            },
+            {
+              "name": "oulu12",
+              "coords": [
+                { "latitude": 65.0177225, "longitude": 25.63322525 },
+                { "latitude": 65.0177225, "longitude": 25.71861 },
+                { "latitude": 64.98177625, "longitude": 25.71861 },
+                { "latitude": 64.98177625, "longitude": 25.63322525 }
+              ]
+            },
+            {
+              "name": "oulu13",
+              "coords": [
+                { "latitude": 64.98177625, "longitude": 25.377071 },
+                { "latitude": 64.98177625, "longitude": 25.46245575 },
+                { "latitude": 64.94583, "longitude": 25.46245575 },
+                { "latitude": 64.94583, "longitude": 25.377071 }
+              ]
+            },
+            {
+              "name": "oulu14",
+              "coords": [
+                { "latitude": 64.98177625, "longitude": 25.46245575 },
+                { "latitude": 64.98177625, "longitude": 25.5478405 },
+                { "latitude": 64.94583, "longitude": 25.5478405 },
+                { "latitude": 64.94583, "longitude": 25.46245575 }
+              ]
+            },
+            {
+              "name": "oulu15",
+              "coords": [
+                { "latitude": 64.98177625, "longitude": 25.5478405 },
+                { "latitude": 64.98177625, "longitude": 25.63322525 },
+                { "latitude": 64.94583, "longitude": 25.63322525 },
+                { "latitude": 64.94583, "longitude": 25.5478405 }
+              ]
+            },
+            {
+              "name": "oulu16",
+              "coords": [
+                { "latitude": 64.98177625, "longitude": 25.63322525 },
+                { "latitude": 64.98177625, "longitude": 25.71861 },
+                { "latitude": 64.94583, "longitude": 25.71861 },
+                { "latitude": 64.94583, "longitude": 25.63322525 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

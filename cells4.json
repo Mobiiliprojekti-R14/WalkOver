@@ -1,0 +1,178 @@
+[
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu1",
+    "coords": [
+      { "latitude": 65.089615, "longitude": 25.377071 },
+      { "latitude": 65.089615, "longitude": 25.46245575 },
+      { "latitude": 65.05366875, "longitude": 25.46245575 },
+      { "latitude": 65.05366875, "longitude": 25.377071 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu2",
+    "coords": [
+      { "latitude": 65.089615, "longitude": 25.46245575 },
+      { "latitude": 65.089615, "longitude": 25.5478405 },
+      { "latitude": 65.05366875, "longitude": 25.5478405 },
+      { "latitude": 65.05366875, "longitude": 25.46245575 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu3",
+    "coords": [
+      { "latitude": 65.089615, "longitude": 25.5478405 },
+      { "latitude": 65.089615, "longitude": 25.63322525 },
+      { "latitude": 65.05366875, "longitude": 25.63322525 },
+      { "latitude": 65.05366875, "longitude": 25.5478405 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu4",
+    "coords": [
+      { "latitude": 65.089615, "longitude": 25.63322525 },
+      { "latitude": 65.089615, "longitude": 25.71861 },
+      { "latitude": 65.05366875, "longitude": 25.71861 },
+      { "latitude": 65.05366875, "longitude": 25.63322525 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu5",
+    "coords": [
+      { "latitude": 65.05366875, "longitude": 25.377071 },
+      { "latitude": 65.05366875, "longitude": 25.46245575 },
+      { "latitude": 65.0177225, "longitude": 25.46245575 },
+      { "latitude": 65.0177225, "longitude": 25.377071 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu6",
+    "coords": [
+      { "latitude": 65.05366875, "longitude": 25.46245575 },
+      { "latitude": 65.05366875, "longitude": 25.5478405 },
+      { "latitude": 65.0177225, "longitude": 25.5478405 },
+      { "latitude": 65.0177225, "longitude": 25.46245575 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu7",
+    "coords": [
+      { "latitude": 65.05366875, "longitude": 25.5478405 },
+      { "latitude": 65.05366875, "longitude": 25.63322525 },
+      { "latitude": 65.0177225, "longitude": 25.63322525 },
+      { "latitude": 65.0177225, "longitude": 25.5478405 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu8",
+    "coords": [
+      { "latitude": 65.05366875, "longitude": 25.63322525 },
+      { "latitude": 65.05366875, "longitude": 25.71861 },
+      { "latitude": 65.0177225, "longitude": 25.71861 },
+      { "latitude": 65.0177225, "longitude": 25.63322525 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu9",
+    "coords": [
+      { "latitude": 65.0177225, "longitude": 25.377071 },
+      { "latitude": 65.0177225, "longitude": 25.46245575 },
+      { "latitude": 64.98177625, "longitude": 25.46245575 },
+      { "latitude": 64.98177625, "longitude": 25.377071 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu10",
+    "coords": [
+      { "latitude": 65.0177225, "longitude": 25.46245575 },
+      { "latitude": 65.0177225, "longitude": 25.5478405 },
+      { "latitude": 64.98177625, "longitude": 25.5478405 },
+      { "latitude": 64.98177625, "longitude": 25.46245575 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu11",
+    "coords": [
+      { "latitude": 65.0177225, "longitude": 25.5478405 },
+      { "latitude": 65.0177225, "longitude": 25.63322525 },
+      { "latitude": 64.98177625, "longitude": 25.63322525 },
+      { "latitude": 64.98177625, "longitude": 25.5478405 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu12",
+    "coords": [
+      { "latitude": 65.0177225, "longitude": 25.63322525 },
+      { "latitude": 65.0177225, "longitude": 25.71861 },
+      { "latitude": 64.98177625, "longitude": 25.71861 },
+      { "latitude": 64.98177625, "longitude": 25.63322525 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu13",
+    "coords": [
+      { "latitude": 64.98177625, "longitude": 25.377071 },
+      { "latitude": 64.98177625, "longitude": 25.46245575 },
+      { "latitude": 64.94583, "longitude": 25.46245575 },
+      { "latitude": 64.94583, "longitude": 25.377071 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu14",
+    "coords": [
+      { "latitude": 64.98177625, "longitude": 25.46245575 },
+      { "latitude": 64.98177625, "longitude": 25.5478405 },
+      { "latitude": 64.94583, "longitude": 25.5478405 },
+      { "latitude": 64.94583, "longitude": 25.46245575 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu15",
+    "coords": [
+      { "latitude": 64.98177625, "longitude": 25.5478405 },
+      { "latitude": 64.98177625, "longitude": 25.63322525 },
+      { "latitude": 64.94583, "longitude": 25.63322525 },
+      { "latitude": 64.94583, "longitude": 25.5478405 }
+    ]
+  },
+  {
+    "country": "finland",
+    "city": "oulu",
+    "name": "oulu16",
+    "coords": [
+      { "latitude": 64.98177625, "longitude": 25.63322525 },
+      { "latitude": 64.98177625, "longitude": 25.71861 },
+      { "latitude": 64.94583, "longitude": 25.71861 },
+      { "latitude": 64.94583, "longitude": 25.63322525 }
+    ]
+  }
+]
