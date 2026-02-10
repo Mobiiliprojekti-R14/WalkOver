@@ -8,6 +8,9 @@ import { Pressable, Text } from "react-native"
 import { HomeScreen } from "../../screens/HomeScreen"
 import { MenuScreen } from "../../screens/MenuScreen"
 import { AccountMenuScreen } from "../../screens/AccountMenuScreen"
+import { ProfileScreen } from "../../screens/ProfileScreen"
+import { LeaderboardScreen } from "../../screens/LeaderboardScreen"
+import { InstructionsScreen } from "../../screens/InstructionsScreen"
 
 import { useAuth } from "../auth/AuthProvider"
 import { getInitials } from "../utils/getInitials"
@@ -16,7 +19,11 @@ import { AvatarButton } from "../../components/AvatarButton"
 
 // Valikkosivut
 import { DummyTestScreen } from "../../screens/DummyTestScreen"
-import { DummySettingsScreen } from "../../screens/DummySettingsScreen"
+import { Testisivu } from "../../screens/Testisivu"
+
+
+// Käyttäjän sivut
+import { UserSettingsScreen } from "../../screens/UserSettingsScreen"
 
 
 export type AppStackParamList = {
@@ -24,16 +31,19 @@ export type AppStackParamList = {
     Menu: undefined
     Profile: undefined
     HowToPlay: undefined
-    Settings: undefined
     About: undefined
     AccountMenu: undefined
 
     // Valikkosivut
     Dummy: undefined
+    Testisivu: undefined
+    Profiili: undefined
+    Tulostaulu: undefined
+    Peliohje: undefined
 
 
     // Accountsivut
-    DummySettings: undefined
+    Settings: undefined
 }
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
@@ -95,10 +105,13 @@ export function AppStackNavigator() {
 
             {/* Menu-sivut */}
             <Stack.Screen name="Dummy" component={DummyTestScreen} options={{ title: "DummyTesti sivu" }} />
-
+            <Stack.Screen name="Testisivu" component={Testisivu} options={{ title: "Testisivu2" }} />
+            <Stack.Screen name="Profiili" component={ProfileScreen} options={{ title: "Profiili" }} />
+            <Stack.Screen name="Tulostaulu" component={LeaderboardScreen} options={{ title: "Tulostaulu" }} />
+            <Stack.Screen name="Peliohje" component={InstructionsScreen} options={{ title: "Peliohje" }} />
 
             {/* Account-sivut */}
-            <Stack.Screen name="DummySettings" component={DummySettingsScreen} options={{ title: "DummySettings sivu" }} />
+            <Stack.Screen name="Settings" component={UserSettingsScreen} options={{ title: "Asetukset" }} />
 
         </Stack.Navigator>
     )

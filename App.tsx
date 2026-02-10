@@ -3,17 +3,20 @@ import React, { useEffect } from "react"
 import { StyleSheet, Text, View, Button } from 'react-native';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider, useAuth } from './src/auth/AuthProvider';
+import { AuthProvider } from './src/auth/AuthProvider';
 import { RootGate } from './src/gates/RootGate';
+import { PaperProvider } from 'react-native-paper';
 
 
 export default function App() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootGate />
-      </AuthProvider>
+      <PaperProvider>
+        <AuthProvider>
+          <RootGate />
+        </AuthProvider>
+      </PaperProvider>
     </SafeAreaProvider>
   );
 

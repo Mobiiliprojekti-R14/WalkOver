@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, KeyboardAvoidingView, ScrollView, Platform, StyleSheet } from 'react-native';
 import { Text, TextInput, Card, Button } from 'react-native-paper';
 import { login, logout } from '../src/services/SignInService';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Props = {
   onSwitchToSignUp: () => void
@@ -27,60 +28,82 @@ export function LoginScreen({ onSwitchToSignUp }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>Tervetuloa pelaamaan WalkOn!</Text>
-      <Text style={styles.tipText}>Kirjaudu tai aloita luomalla käyttäjä.</Text>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text>Käyttäjänimi</Text>
-          <TextInput
-            mode="outlined"
-            placeholder='käyttäjänimi'
-            value={username}
-            onChangeText={setUsername}
-            style={styles.input}
-          />
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled" // Määrittää mitä tapahtuu kosketuksille, kun näppäimistö auki
+          keyboardDismissMode="on-drag"       // Näppäimistö sulkeutuu heti kun käyttäjä alkaa scrollata
+          showsVerticalScrollIndicator={false}  // Piilottaa oikean reunan scroll-palkin
+        >
+          <Text style={styles.welcomeText}>Tervetuloa pelaamaan WalkOver!</Text>
+          <Text style={styles.tipText}>Kirjaudu tai aloita luomalla käyttäjä.</Text>
+          <Card style={styles.card}>
+            <Card.Content>
 
-          <Text>Password</Text>
-          <TextInput
-            mode="outlined"
-            secureTextEntry={securePassword}
-            value={password}
-            onChangeText={setPassword}
-            style={styles.input}
-            right={<TextInput.Icon icon=
-              {securePassword ? "eye" : "eye-off"} onPress={() =>
-                setSecurePassword(!securePassword)} />}
-          />
+              <TextInput
+                mode="outlined"
+                placeholder='Käyttäjänimi'
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
+              />
 
-          <View style={styles.buttonRow}>
-            {/*<Button
-              mode="text"
-              onPress={() => console.log('Siirrytään rekisteröitymään')}
-              style={styles.signInButton}
-            > Luo käyttäjä </Button>*/}
-            <Button
-              mode="text"
-              onPress={handleLogin}
-              style={styles.logInButton}
-            > Kirjaudu </Button>
-          </View>
-          <Text
-            variant="bodyMedium"
-            style={[styles.switchText && styles.disabledText]}
-            onPress={onSwitchToSignUp}
-          >
-            <Text style={styles.switchTextBold}>Luo tili</Text>
-          </Text>
-        </Card.Content>
-      </Card>
-    </View>
+              <TextInput
+                mode="outlined"
+                placeholder='Salasana'
+                secureTextEntry={securePassword}
+                value={password}
+                onChangeText={setPassword}
+                style={styles.input}
+                right={<TextInput.Icon icon=
+                  {securePassword ? "eye" : "eye-off"} onPress={() =>
+                    setSecurePassword(!securePassword)} />}
+              />
 
+              <View style={styles.buttonRow}>
+
+
+                <Button
+                  mode="outlined"
+                  onPress={onSwitchToSignUp}
+                  style={styles.sideButton}
+                >
+                  Luo tili
+                </Button>
+
+                <Button
+                  mode="contained"
+                  onPress={handleLogin}
+                  style={styles.logInButton}
+                > Kirjaudu
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
 
   )
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F4F5F7"
+  },
+  keyboardAvoid: {
+    flex: 1
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -98,7 +121,6 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   card: {
-    width: '90%',
     elevation: 4,
     padding: 10,
   },
@@ -108,13 +130,19 @@ const styles = StyleSheet.create({
   buttonRow: {
     marginTop: 15,
     flexDirection: 'row',
-    justifyContent: 'flex-end'
+    justifyContent: "space-between",
+    gap: 12,
+
+  },
+  sideButton: {
+    flex: 1,
   },
   logInButton: {
 
+    flex: 1,
   },
   switchText: {
-  
+    textAlign: "center",
   },
   disabledText: {
 
