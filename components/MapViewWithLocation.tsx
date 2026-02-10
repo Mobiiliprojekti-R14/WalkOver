@@ -1,16 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker, Callout } from 'react-native-maps'
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import cells4 from '../cells4.json'
+import { IconButton } from 'react-native-paper'
 
+type CellData = {
+  country: string,
+  city: string,
+  name?: string,
+  coords: LatLng[]
+}
 
-  const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
-  const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
+  //const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
+  //const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
-
+/*
   const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
     { latitude: 65.089615, longitude: 25.46245575 },
@@ -122,7 +130,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
     { latitude: 64.94583, longitude: 25.71861 },
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
-
+*/
   const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
     //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
     //lähinnä apufunktio alempana määritellylle findCell-funktiolle
@@ -156,7 +164,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
       return true
     }
   }
-
+/*
   const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
@@ -185,49 +193,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
     return cellIndex
   }
+*/
+const findCell4 = (coordinate: LatLng, cellList: CellData[]): number => {
+  //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
-//import cells from '../cells.json' //ensimmäinen toteutus, vaikeampi ylläpitää
-//import cells from '../cells2.json'
-//import cells3 from '../cells3.json'
-import cells4 from '../cells4.json'
-import { Icon, IconButton } from 'react-native-paper'
+  for (let i = 0; i < cellList.length; i++) {
+    if (isInsideCell(coordinate, cellList[i].coords)) {
+      console.log("piste on cellissä ", i + 1)
+      return i + 1
+    }
+  }
 
-/*
-type City = {
-  fullGameArea: {
-    coords: LatLng[]
-  },
-  cells: {
-    name: string,
-    coords: LatLng[]
-  }[]
-}*/
+  //piste on pelialueen ulkopuolella
+  console.log("koordinaatti on pelialueen ulkopuolella")
 
-/*
-type City3 = {
-  name: string,
-  fullGameArea: {
-    coords: LatLng[]
-  },
-  cells: {
-    name: string,
-    coords: LatLng[]
-  }[]
-}*/
-
-/*
-type CellData = {
-  countries: {
-    name: string,
-    cities: City3[]
-  }[]
-}*/
-
-type CellData2 = {
-  country: string,
-  city: string,
-  name?: string,
-  coords: LatLng[]
+  return -1
 }
 
 const LOCATION_TASK_NAME = 'background-location-task'
@@ -245,7 +225,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     const { locations } = data as { locations: Location.LocationObject[] }
     const latest = locations[0].coords
     const coord = { latitude: latest.latitude, longitude: latest.longitude }
-    const BGcellNumber = findCell(coord)
+    const BGcellNumber = findCell4(coord, cells4)
     await AsyncStorage.setItem("currentCell", String(BGcellNumber))
 
     
@@ -301,6 +281,7 @@ export default function MapViewWithLocation() {
 
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
+  
   const [cellNumber, setCellNumber] = useState<number>(-1)
 
   //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
@@ -388,7 +369,7 @@ export default function MapViewWithLocation() {
             const { latitude, longitude } = pos.coords
             setCurrentLocation({ latitude, longitude })
             setRouteCoords((prev) => [...prev, { latitude, longitude }])
-            const FGcellNumber = findCell({latitude,longitude})
+            const FGcellNumber = findCell4({latitude,longitude}, cells4)
             console.log("FG User is in cell:", FGcellNumber)
           }
         )
@@ -449,12 +430,7 @@ export default function MapViewWithLocation() {
 
   /*
   const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
-  const fullAreaOulu: LatLng[] = cells.finland.oulu.fullGameArea.coords
-  const fullAreaOulu3: LatLng[] = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')!!.cities.find((city) => city.name.toLowerCase() === 'oulu')!!.fullGameArea.coords
 
-  //const cells_oulu1: LatLng[] = cells.finland.oulu.cells.cell1.coords //ensimmäinen toteutus, vaikeampi ylläpitää
-  const oulu1: LatLng[] = cells.finland.oulu.cells[0].coords
-  const oulu1_v3: LatLng[] = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')!!.cities.find((city) => city.name.toLowerCase() === 'oulu')!!.cells[0].coords
   const oulu1_v4: LatLng[] = cells4[0].coords
   const cell1: LatLng[] = [
     { latitude: 65.089615, longitude: 25.377071 },
@@ -569,41 +545,8 @@ export default function MapViewWithLocation() {
   ]
   */
 
+  //väliaikainen kunnes cellin väri haetaan tietokannasta käyttäjän värin perusteella
   const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
-
-  const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
-    //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
-    //lähinnä apufunktio alempana määritellylle findCell-funktiolle
-
-    const latitudes = cell.map((point) => { return point.latitude })
-    const longitudes = cell.map((point) => { return point.longitude })
-
-    const latMin = Math.min(...latitudes)
-    const latMax = Math.max(...latitudes)
-    const longMin = Math.min(...longitudes)
-    const longMax = Math.max(...longitudes)
-
-    if (coordinate.latitude <= latMin) {
-      //piste on cellin alareunan alapuolella
-      return false
-    }
-    else if (coordinate.latitude >= latMax) {
-      //piste on cellin yläreunan yläpuolella
-      return false
-    }
-    else if (coordinate.longitude <= longMin) {
-      //piste on cellin vasemman reunan vasemmalla puolella
-      return false
-    }
-    else if (coordinate.longitude >= longMax) {
-      //piste on cellin oikean reunan oikealla puolella
-      return false
-    }
-    else {
-      //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
-      return true
-    }
-  }
 
   /*const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -634,60 +577,7 @@ export default function MapViewWithLocation() {
     return cellIndex
   }*/
 
-  /*const findCell2 = (coordinate: LatLng, city: City): number => {
-    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
-
-    let cellIndex = -1
-
-    if (!isInsideCell(coordinate, city.fullGameArea.coords)) {
-      //piste on pelialueen ulkopuolella
-      console.log("koordinaatti on pelialueen ulkopuolella")
-      return cellIndex
-    }
-
-    const cells = city.cells
-
-    for (let i = 0; i < cells.length; i++) {
-      if (isInsideCell(coordinate, cells[i].coords)) {
-        console.log("piste on cellissä ", i + 1)
-        cellIndex = i + 1
-        break
-      }
-    }
-
-    return cellIndex
-  }*/
-
   /*
-  const findCell3 = (coordinate: LatLng, city: City3 | undefined): number => {
-    //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
-
-    let cellIndex = -1
-
-    if (!city) {
-      console.log("findCell: city parameter was undefined")
-      return cellIndex
-    }
-
-    if (!isInsideCell(coordinate, city.fullGameArea.coords)) {
-      //piste on pelialueen ulkopuolella
-      console.log("koordinaatti on pelialueen ulkopuolella")
-      return cellIndex
-    }
-
-    const cells = city.cells
-
-    for (let i = 0; i < cells.length; i++) {
-      if (isInsideCell(coordinate, cells[i].coords)) {
-        console.log("piste on cellissä ", i + 1)
-        cellIndex = i + 1
-        break
-      }
-    }
-
-    return cellIndex
-  }*/
-
   const findCell4 = (coordinate: LatLng, cellList: CellData2[]): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
@@ -703,22 +593,7 @@ export default function MapViewWithLocation() {
 
     return -1
   }
-
-  /*
-  const getAllCells = (obj: CellData) => {
-    const cellList = []
-    for (let i=0; i<obj.countries.length; i++) {
-      for (let j=0; j<obj.countries[i].cities.length; j++) {
-        for (let k=0; k<obj.countries[i].cities[j].cells.length; k++) {
-          cellList.push({
-            id: `${i}${j}${k}`,
-            coords: obj.countries[i].cities[j].cells[k].coords
-          })
-        }
-      }
-    }
-    return cellList
-  }*/
+  */
 
   const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
@@ -726,23 +601,10 @@ export default function MapViewWithLocation() {
     setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
 
     //const cellNumber = findCell(onPressCoords)
-    //const cellNumber2 = findCell2(onPressCoords, cells.finland.oulu)
-    //const cityOulu: City3 | undefined = cells3.countries.find((country) => country.name.toLowerCase() === 'finland')?.cities.find((city) => city.name.toLowerCase() === 'oulu')
-    //const cellNumber3 = findCell3(onPressCoords, cityOulu)
-    const cellNumber4 = findCell4(onPressCoords, cells4)
-    setDebugCell(cellNumber4)
+    const cellNumber = findCell4(onPressCoords, cells4)
+    setDebugCell(cellNumber)
 
-
-    //väliaikainen demo
-    if (cellNumber4 === 1) {
-      setModalVisible(true)
-    }
-    else if (cellNumber4 === 2) {
-      Alert.alert(`Cell #${cellNumber4}`, `Captured by: xyz\nSteps required to capture: 1500`)
-    }
-    else if (cellNumber4 === 3) {
-      markerRef.current?.showCallout()
-    }
+    if (cellNumber > -1) setModalVisible(true)
 
     setIsFollowing(false)
     setLastInteraction(Date.now())
@@ -782,17 +644,6 @@ export default function MapViewWithLocation() {
           })
         }
 
-        {/*
-        getAllCells(cells3).map((cell, index) => {
-          return <Polygon key={cell.id} coordinates={cell.coords} fillColor={cellColors[index % 4]} />
-        })
-        */}
-
-
-        {/*cells.finland.oulu.cells.map((cell, index) => {
-          return <Polygon key={cell.name} coordinates={cell.coords} fillColor={cellColors[index % 4]}/>
-        })*/}
-
 
         {/*
         <Polygon coordinates={cell1} fillColor="#ff000040" tappable={true} onPress={(e) => {
@@ -820,23 +671,14 @@ export default function MapViewWithLocation() {
         */}
 
         {/* debug marker, voi poistaa myöhemmästä toteutuksesta! */}
-        {debugCoords ? (
-          <Marker coordinate={debugCoords} opacity={1} ref={markerRef} title='test title' description='test description' icon={4}>
-            {/*<Icon source='circle-outline' size={20} color='#ff0000'></Icon>*/}
-            {/*
-            <Callout>
-              <View style={{width: 100, height: 200}}>
-                <Text>Cell #{debugCell}</Text>
-                <Text>Captured by: xyz</Text>
-                <Text>Steps required to capture: 1500</Text>
-              </View>
-            </Callout>*/}
-          </Marker>) : null}
+        {/*debugCoords ? (
+          <Marker coordinate={debugCoords} opacity={1} ref={markerRef} title='test title' description='test description' icon={4} />
+        ) : null*/}
 
       </MapView>
 
       <Modal
-        animationType='fade'
+        animationType='slide'
         visible={modalVisible}
         transparent={true}
         onRequestClose={() => {
