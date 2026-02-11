@@ -15,8 +15,8 @@ type CellData = {
   coords: LatLng[]
 }
 
-  //const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
-  //const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
+//const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
+//const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
 /*
   const cell1: LatLng[] = [
@@ -131,39 +131,39 @@ type CellData = {
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
 */
-  const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
-    //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
-    //lähinnä apufunktio alempana määritellylle findCell-funktiolle
+const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
+  //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
+  //lähinnä apufunktio alempana määritellylle findCell-funktiolle
 
-    const latitudes = cell.map((point) => { return point.latitude })
-    const longitudes = cell.map((point) => { return point.longitude })
+  const latitudes = cell.map((point) => { return point.latitude })
+  const longitudes = cell.map((point) => { return point.longitude })
 
-    const latMin = Math.min(...latitudes)
-    const latMax = Math.max(...latitudes)
-    const longMin = Math.min(...longitudes)
-    const longMax = Math.max(...longitudes)
+  const latMin = Math.min(...latitudes)
+  const latMax = Math.max(...latitudes)
+  const longMin = Math.min(...longitudes)
+  const longMax = Math.max(...longitudes)
 
-    if (coordinate.latitude <= latMin) {
-      //piste on cellin alareunan alapuolella
-      return false
-    }
-    else if (coordinate.latitude >= latMax) {
-      //piste on cellin yläreunan yläpuolella
-      return false
-    }
-    else if (coordinate.longitude <= longMin) {
-      //piste on cellin vasemman reunan vasemmalla puolella
-      return false
-    }
-    else if (coordinate.longitude >= longMax) {
-      //piste on cellin oikean reunan oikealla puolella
-      return false
-    }
-    else {
-      //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
-      return true
-    }
+  if (coordinate.latitude <= latMin) {
+    //piste on cellin alareunan alapuolella
+    return false
   }
+  else if (coordinate.latitude >= latMax) {
+    //piste on cellin yläreunan yläpuolella
+    return false
+  }
+  else if (coordinate.longitude <= longMin) {
+    //piste on cellin vasemman reunan vasemmalla puolella
+    return false
+  }
+  else if (coordinate.longitude >= longMax) {
+    //piste on cellin oikean reunan oikealla puolella
+    return false
+  }
+  else {
+    //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
+    return true
+  }
+}
 /*
   const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -228,7 +228,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     const BGcellNumber = findCell4(coord, cells4)
     await AsyncStorage.setItem("currentCell", String(BGcellNumber))
 
-    
+
     console.log("BG User is in cell:", BGcellNumber)
     //console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
   }
@@ -281,7 +281,7 @@ export default function MapViewWithLocation() {
 
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
-  
+
   const [cellNumber, setCellNumber] = useState<number>(-1)
 
   //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
@@ -290,13 +290,13 @@ export default function MapViewWithLocation() {
   const [debugText, setDebugText] = useState<string>("")
 
   useEffect(() => {
-  const interval = setInterval(async () => {
-    const stored = await AsyncStorage.getItem("currentCell")
-    if (stored) setCellNumber(Number(stored))
-  }, 1000)
+    const interval = setInterval(async () => {
+      const stored = await AsyncStorage.getItem("currentCell")
+      if (stored) setCellNumber(Number(stored))
+    }, 1000)
 
-  return () => clearInterval(interval)
-}, [])
+    return () => clearInterval(interval)
+  }, [])
 
 
   // Ensimmäisen sijainnin haku heti kun karttanäkymä avataan
@@ -369,7 +369,7 @@ export default function MapViewWithLocation() {
             const { latitude, longitude } = pos.coords
             setCurrentLocation({ latitude, longitude })
             setRouteCoords((prev) => [...prev, { latitude, longitude }])
-            const FGcellNumber = findCell4({latitude,longitude}, cells4)
+            const FGcellNumber = findCell4({ latitude, longitude }, cells4)
             console.log("FG User is in cell:", FGcellNumber)
           }
         )
@@ -423,7 +423,7 @@ export default function MapViewWithLocation() {
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{margin: 8}}>Fetching location...</Text>
+      <Text style={{ margin: 8 }}>Fetching location...</Text>
       <ActivityIndicator />
     </View>
   )
