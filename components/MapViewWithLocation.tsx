@@ -7,6 +7,7 @@ import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
 import { IconButton } from 'react-native-paper'
+import StepsInCell from './StepsInCell'
 
 type CellData = {
   country: string,
@@ -228,6 +229,13 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     const BGcellNumber = findCell4(coord, cells4)
     await AsyncStorage.setItem("currentCell", String(BGcellNumber))
 
+<<<<<<< HEAD
+=======
+    const prev = await AsyncStorage.getItem("route")
+    const route = prev ? JSON.parse(prev) : []
+    route.push(coord)
+    await AsyncStorage.setItem("route", JSON.stringify(route))
+>>>>>>> 10879b8cc9402ecbd96059829547e5b12a5ed681
 
     console.log("BG User is in cell:", BGcellNumber)
     //console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
@@ -289,6 +297,16 @@ export default function MapViewWithLocation() {
   const [debugCell, setDebugCell] = useState<number>(-1)
   const [debugText, setDebugText] = useState<string>("")
 
+  // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
+  useEffect(() => {
+  if (!isPlaying) {
+    AsyncStorage.removeItem("route")
+    setRouteCoords([])
+  }
+}, [isPlaying])
+
+
+
   useEffect(() => {
     const interval = setInterval(async () => {
       const stored = await AsyncStorage.getItem("currentCell")
@@ -297,6 +315,19 @@ export default function MapViewWithLocation() {
 
     return () => clearInterval(interval)
   }, [])
+
+// Reitin piirtäminen backgroundissa
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const storedRoute = await AsyncStorage.getItem("route")
+    if (storedRoute) {
+      setRouteCoords(JSON.parse(storedRoute))
+    }
+  }, 2000)
+
+  return () => clearInterval(interval)
+}, [])
+
 
 
   // Ensimmäisen sijainnin haku heti kun karttanäkymä avataan
@@ -716,8 +747,9 @@ export default function MapViewWithLocation() {
       {isPlaying && <PedometerComponent cellNumber={cellNumber} />}
 
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
-      <Text>{debugText}</Text>
-      <Text>cell: {debugCell}</Text>
+      {/*<Text>{debugText}</Text>*/}
+      {/*<Text>cell: {debugCell}</Text>*/}
+      <StepsInCell cellNumber={cellNumber}/>
 
 
       <TouchableOpacity
@@ -740,11 +772,11 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '90%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
+    height: '80%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
   },
   playButton: {
     position: "absolute",
-    bottom: 100,
+    bottom: 150,
     left: 70,
     right: 70,
     alignItems: "center",

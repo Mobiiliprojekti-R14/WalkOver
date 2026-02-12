@@ -12,7 +12,7 @@ export function ProfileScreen() {
     const [checked, setChecked] = useState(false)
 
     const displayName = profile?.displayName || "Käyttäjä"
-    const userColor = profile?.userColor || '#4682B4'
+    //const userColor = profile?.userColor || '#4682B4'
 
     //Haetaan cells taulukko joka sisältää arvot oulu1-oulu16 askeleet
     const cells = profile?.cells || Array(16).fill(0)
@@ -38,7 +38,7 @@ export function ProfileScreen() {
                         <Text style={styles.text}>Aktiivisuutesi tällä hetkellä:</Text>
                         <View style={styles.statsRow}>
                             <View style={styles.stepsCounter}>
-                                <MaterialIcons name="directions-walk" size={28} color={userColor} />
+                                <MaterialIcons name="directions-walk" size={28} color={""} />
                                 <Text style={styles.statNumber}>{totalSteps}</Text>
                                 <Text style={styles.statLabel}>Askeleet yhteensä</Text>
                             </View>
@@ -71,7 +71,7 @@ export function ProfileScreen() {
                                     size={40}
                                     // Ottaa nimen ensimmäisen kirjaimen
                                     label={displayName.charAt(0).toUpperCase()}
-                                    style={{ backgroundColor: userColor }}
+                                //style={{ backgroundColor: userColor }}
                                 />
                             </View>
                         </View>
