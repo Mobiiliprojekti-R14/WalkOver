@@ -44,7 +44,7 @@
           "apiKey": ""
         }
       },
-      "package": "fi.joku14.walkover"
+      "package": "com.tikkanti.WalkOver"
     },
     "web": {
       "favicon": "./assets/favicon.png"
