@@ -17,6 +17,7 @@ export type UserProfile = {
     email: string | null
     cells: number[]
 
+
     // Profiiliväri
     colorFamily: ColorFamily | null
     colorVariant: 1 | 2 | 3 | 4 | null // null -> noColor -tila
