@@ -7,8 +7,10 @@ import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
 import { IconButton } from 'react-native-paper'
+import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
+import { setOpacity } from '../src/utils/colorStrings'
 
-type CellData = {
+type CellGeoData = {
   country: string,
   city: string,
   name?: string,
@@ -194,7 +196,7 @@ type CellData = {
     return cellIndex
   }
 */
-const findCell4 = (coordinate: LatLng, cellList: CellData[]): number => {
+const findCell4 = (coordinate: LatLng, cellList: CellGeoData[]): number => {
   //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
   for (let i = 0; i < cellList.length; i++) {
@@ -277,7 +279,7 @@ export default function MapViewWithLocation() {
   const mapRef = useRef<MapView>(null)
 
   // marker ref (väliaikainen testi)
-  const markerRef = useRef<MapMarker>(null)
+  //const markerRef = useRef<MapMarker>(null)
 
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
@@ -288,6 +290,25 @@ export default function MapViewWithLocation() {
   const [debugCoords, setDebugCoords] = useState<LatLng>()
   const [debugCell, setDebugCell] = useState<number>(-1)
   const [debugText, setDebugText] = useState<string>("")
+
+  //tähän tallennetaan lista objekteista, joissa on cellin alueella liikkuneiden tiedot (haetaan tietokannasta)
+  const [cellUserData, setCellUserData] = useState<CellUserData[] | undefined>([])
+
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [previousFetch, setPreviousFetch] = useState(0)
+
+  useEffect(() => {
+    (async () => {
+      if (isFetchingData) return; //estää usean samanaikaisen haun (toivottavasti... :D)
+      if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
+      setIsFetchingData(true)
+      const cellDataList = await onMapLoad();
+      //console.log(cellDataList[6]) //{"cellNumber": 7, "firstColor": "#666", "firstName": "mikkotestaa2", "firstSteps": 351, "secondName": "mikkotestaa", "secondSteps": 208, "thirdName": undefined, "thirdSteps": undefined}
+      setCellUserData(cellDataList)
+      setPreviousFetch(Date.now())
+      setIsFetchingData(false)
+    })()
+  }, [cellUserData])
 
   useEffect(() => {
   const interval = setInterval(async () => {
@@ -546,7 +567,7 @@ export default function MapViewWithLocation() {
   */
 
   //väliaikainen kunnes cellin väri haetaan tietokannasta käyttäjän värin perusteella
-  const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
+  //const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
 
   /*const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -595,7 +616,7 @@ export default function MapViewWithLocation() {
   }
   */
 
-  const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
+  const handleMapPress = /*async*/ (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
     setDebugCoords(onPressCoords)
     setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
@@ -604,7 +625,10 @@ export default function MapViewWithLocation() {
     const cellNumber = findCell4(onPressCoords, cells4)
     setDebugCell(cellNumber)
 
-    if (cellNumber > -1) setModalVisible(true)
+    if (cellNumber > -1) {
+      /*await*/ //getCellUserData(cellNumber)
+      setModalVisible(true)
+    }
 
     setIsFollowing(false)
     setLastInteraction(Date.now())
@@ -640,7 +664,10 @@ export default function MapViewWithLocation() {
             return <Polygon
               key={index}
               coordinates={cell.coords}
-              fillColor={cellColors[index % 4]} />
+              //fillColor={cellColors[index % 4]}
+              //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
+              fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "40", "#0000") : '#0000'}
+            />
           })
         }
 
@@ -677,6 +704,13 @@ export default function MapViewWithLocation() {
 
       </MapView>
 
+      {isFetchingData || !cellUserData/* || true*/ ?
+        <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
+          <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
+          <ActivityIndicator />
+        </View> : null
+      }
+
       <Modal
         animationType='slide'
         visible={modalVisible}
@@ -696,8 +730,20 @@ export default function MapViewWithLocation() {
             />
             <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
             <View>
-              <Text>Captured by: xyz</Text>
-              <Text>Steps required to capture: 1500</Text>
+              <Text>
+                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
+              </Text>
+              <Text>
+                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].secondName ? `2nd place: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} steps)` : ""}
+                {/*cellUserData ? `2nd place: ${cellUserData[debugCell - 1]?.secondName} (${cellUserData[debugCell - 1]?.secondSteps} steps)` : ""*/}
+              </Text>
+              <Text>
+                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].thirdName ? `3rd place: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} steps)` : ""}
+                {/*cellUserData ? `3rd place: ${cellUserData[debugCell - 1]?.thirdName} (${cellUserData[debugCell - 1]?.thirdSteps} steps)` : ""*/}
+              </Text>
+              <Text>tähän kaavio? (esim pylväsdiagrammi jossa top 3 askeleet ja käyttäjän askeleet [max 4 pylvästä]?)</Text>
+              {/* pylväiden värit userColorista? */}
+              <View></View>
             </View>
             {/*
             <Pressable
