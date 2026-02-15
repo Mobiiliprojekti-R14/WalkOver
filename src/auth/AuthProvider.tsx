@@ -24,7 +24,6 @@ export type UserProfile = {
 }
 
 
-
 // Contextin muoto
 type AuthContextValue = {
     user: User | null
