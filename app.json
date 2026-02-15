@@ -44,7 +44,7 @@
           "apiKey": "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
         }
       },
-      "package": "fi.joku14.walkover"
+      "package": "com.tikkanti.WalkOver"
     },
     "web": {
       "favicon": "./assets/favicon.png"
