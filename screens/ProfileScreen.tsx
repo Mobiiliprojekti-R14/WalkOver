@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native"
 import { Card, Button, Checkbox, Avatar } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
