@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native"
 import { Card, Button, Checkbox, Avatar } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -8,26 +8,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function ProfileScreen() {
     const { profile } = useAuth()
-    const displayName = profile?.displayName || "Käyttäjä"
-
-
     const insets = useSafeAreaInsets()
-
     const [checked, setChecked] = useState(false)
 
+    const displayName = profile?.displayName || "Käyttäjä"
     const userColor = profile?.userColor || '#4682B4'
 
-    //Alustetaan summa nollaksi
-    let totalSteps = 0
-
-    //Käydään läpi numerot 1-16
-    for (let i = 1; i <= 16; i++) {
-        const steps = `oulu${i}`
-        const value = profile ? (profile as any)[steps] : 0
-
-        //Lisätään summaan, jos löytyy arvo
-        totalSteps += Number(value) || 0
-    }
+    //Haetaan cells taulukko joka sisältää arvot oulu1-oulu16 askeleet
+    const cells = profile?.cells || Array(16).fill(0)
+    //Lasketaan taulukon luvuista summa
+    const totalSteps = cells.reduce((sum, current) => sum + (Number(current) || 0), 0)
 
     return (
 

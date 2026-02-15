@@ -13,6 +13,7 @@ import { AppStackNavigator } from "../navigation/AppNavigator"
 import { useAuth } from "../auth/AuthProvider"
 import { SplashScreen } from "../../screens/SplashScreen"
 import { FinishingAccountScreen } from "../../screens/FinishingAccountScreen"
+import { LoggingInScreen } from "../../screens/LoggingInScreen"
 
 import { doc, onSnapshot } from "firebase/firestore"
 import { db, COLLECTIONS } from "../../firebase/Config"
@@ -67,10 +68,23 @@ export function RootGate() {
         return <SplashScreen />
     }
 
-    // User on olemassa, mutta users/{uid} ei vielä -> "Viimeistellään tiliä"
+    /*// User on olemassa, mutta users/{uid} ei vielä -> "Viimeistellään tiliä"
     if (user && !profileReady) {
         return <FinishingAccountScreen />
+    }*/
+   if (user && !profileReady) {
+    //Lasketaan onko käyttäjä juuri luotu
+    const isNewUser = 
+        new Date().getTime() - new Date(user.metadata.creationTime!).getTime() < 10000
+
+    if (isNewUser) {
+        console.log ('rekisteröitymisikkuna')
+        return <FinishingAccountScreen /> //"Viimeistellään tiliä..."
+    } else {
+        console.log ('kirjautumisikkuna')
+        return <LoggingInScreen />//"Kirjaudutaan sisään..."
     }
+}
 
     // Navigointi:
     // - ei useria -> AuthNavigator

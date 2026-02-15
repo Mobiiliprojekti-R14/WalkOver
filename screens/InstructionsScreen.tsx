@@ -1,6 +1,6 @@
 import React from "react"
 import { View, Text, StyleSheet, ScrollView } from "react-native"
-import { Card, Button } from 'react-native-paper';
+import { Card, Button, Avatar } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -29,27 +29,58 @@ export function InstructionsScreen() {
             >
 
                 <Text style={styles.welcomeText}>Peliohjeet</Text>
-                <Text style={styles.tipText}>Näin pelaat WalkOver-peliä</Text>
+                <Text style={styles.tipText}>Näin pelaat WalkOver-peliä
+                </Text>
 
                 <Card style={styles.card}>
                     <Card.Content>
-                        <Text style={styles.sectionTitle}>Tavoite</Text>
+                        <Text style={styles.sectionTitle}>Tavoite <MaterialIcons name="emoji-events" size={24} color="#ebb00e" /></Text>
                         <Text style={styles.text}>
-                            Aloita pelaaminen keräämällä askelia alueilla ja valtaa alueet keräämällä suurimmat askelmäärät. {'\n'}
-                            Oman profiilivärisi näet oikealla ylhäällä olevasta ikonista, alue muuttuu profiilivärisi mukaiseksi kun olet valoittanut alueen.
+                            Tervetuloa peliin, jossa jokainen askel merkitsee! Liiku, kerää askeleita ja valloita kaupunginosat itsellesi.{'\n'}{'\n'}
+                            Pelin tavoitteena on kerätä askelia alueilla, pelaaja joka on kerännyt askeleita alueella määrällisesti eniten, valoittaa alueen.
                         </Text>
-                        <Text style={styles.sectionTitle}>Ohje 2</Text>
+                        <Text style={styles.sectionTitle}>Aloita pelaaminen <MaterialIcons name="location-on" size={24} color="#1c8a2b" /></Text>
+
                         <Text style={styles.text}>
-                            - Jotaki
-                            {'\n'}
-                            - Jotaki
+                            Kun olet valmis liikkumaan, paina etusivulta
+                            <Text style={{ fontWeight: 'bold' }}> Aloita pelaaminen </Text>
+                            -painiketta. Peli tunnistaa automaattisesti millä alueella olet ja alkaa laskemaan askeleitasi kyseiselle alueelle.{'\n'}
+                            Voit vapaasti vaihtaa aluetta liikkuessasi, huomioi kuitenkin että askeleet lasketaan aina sille alueelle jossa niitä kerrytetään.
+                            Kartta piirtää kulkemasi reitin reaaliajassa, etusivulta voit myös tarkistella kyseisellä pelikerrallasi kertyneitä askeleita.
+                        </Text>
+
+                        <Text style={styles.text}>
+                            Pelaaja jolla on hallussaan suurin askelmäärä, valtaa alueen itselleen. Kun valloitat alueen, alue muuttuu kartalla oman profiilivärisi mukaiseksi. Voit tarkastaa oman profiilivärisi<Text style={{ fontWeight: 'bold' }}> etusivulta </Text>oikeassa yläkulmassa olevasta ikonista.
+                        </Text>
+
+                        <Text style={styles.text}>
+                            Seuraa koko pelialueen tilannetta 
+                            <Text style={{ fontWeight: 'bold' }}> Tulostaululta</Text>. 
+                            Tulostaululla näet top3 pelaajat, joilla on hallussaan eniten alueita.
+                            Aluetilastoista etusivulta pääset tarkastelemaan kyseisen alueen askeltilastoja. Vertaa omaa edistymistäsi muihin pelaajiin ja katso, kuinka paljon askeleita tarvitset seuraavaan sijoitukseen.
+                        </Text>
+
+                        <Text style={styles.text}>
+                            <Text style={{ fontWeight: 'bold' }}>Profiilissa </Text>
+                            näet kaikkien pelikertojesi aikana kertyneet yhteisaskeleet. Täältä pystyt myös vaihtamaan omaa profiiliväriäsi.
                         </Text>
                     </Card.Content>
                 </Card>
+
+                <View style={styles.tipContainer}>
+                    <MaterialIcons name="lightbulb" size={24} color="#fbc02d" />
+                    <Text style={styles.tipTextContent}>
+                        <Text style={{ fontWeight: 'bold' }}>Vinkki: </Text>
+                        Strategia on yksinkertainen! Mitä enemmän liikut, sitä vaikeampaa muiden on viedä alueitasi.
+                        Muista tarkistella aluetilastoja usein, jotta tiedät kuka kärkkyy paikkaasi!
+                    </Text>
+                </View>
+
             </ScrollView>
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -97,19 +128,34 @@ const styles = StyleSheet.create({
         width: '90%',
         elevation: 4,
         padding: 10,
+        borderRadius: 15,
     },
     sectionTitle: {
         fontSize: 20,
         fontWeight: '500',
         marginTop: 10,
-        marginBottom: 5,
+        marginBottom: 20,
         textAlign: 'center'
     },
     text: {
         fontSize: 16,
         lineHeight: 24,
         textAlign: 'center',
-        marginBottom: 10,
+        marginBottom: 20,
+    },
+    tipContainer: {
+        flexDirection: 'row',
+        padding: 5,
+        marginTop: 20,
+        marginBottom: 20,
+        alignItems: 'center',
+        width: '90%',
+    },
+    tipTextContent: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 14,
+        lineHeight: 22,
     },
 
 
