@@ -16,6 +16,7 @@ export type UserProfile = {
     username: string | null
     email: string | null
     cells: number[] | null
+    userColor: string | null
 }
 // Contextin muoto
 type AuthContextValue = {
@@ -74,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     const data = snap.data() as { 
                         displayName?: string,
                         username?: string,
+                        userColor?: string,
                         oulu1?: number,
                         oulu2?: number,
                         oulu3?: number,
@@ -95,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         displayName: data.displayName ?? null,
                         username: data.username ?? null,
                         email,
+                        userColor: data.userColor ?? null,
                         cells: [
                             data.oulu1 ?? 0,
                             data.oulu2 ?? 0,
@@ -116,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     })
                 } else {
                     // Profiilia ei vielä ole -> pidetään email mukana
-                    setProfile({ displayName: null, username: null, email, cells: Array(16).fill(0) })
+                    setProfile({ displayName: null, username: null, email, userColor: null, cells: Array(16).fill(0) })
                 }
             } catch (e) {
                 console.warn("Profiilin lataus epäonnistui", e)
@@ -125,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         displayName: null,
                         username: null,
                         email: user.email ?? null,
+                        userColor: null,
                         cells: Array(16).fill(0)
                     })
                 }
