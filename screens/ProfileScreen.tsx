@@ -5,9 +5,18 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from "../src/auth/AuthProvider";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { doc, updateDoc } from "firebase/firestore"
+import { db, COLLECTIONS } from "../firebase/Config"
+
+import {
+    getAccentHexFromProfile,
+    getColorName,
+    generateProfileColor,
+} from "../src/theme/colorsPalette";
+
 
 export function ProfileScreen() {
-    const { profile } = useAuth()
+    const { user, profile } = useAuth()
     const insets = useSafeAreaInsets()
     const [checked, setChecked] = useState(false)
 
@@ -18,6 +27,33 @@ export function ProfileScreen() {
     const cells = profile?.cells || Array(16).fill(0)
     //Lasketaan taulukon luvuista summa
     const totalSteps = cells.reduce((sum, current) => sum + (Number(current) || 0), 0)
+
+    // Nykyinen profiiliväri hexinä (tai null jos ei valittu)
+    const accentHex = getAccentHexFromProfile(profile?.colorFamily, profile?.colorVariant)
+
+    // Profiilivärin nimi (tai null jos ei valittu)
+    const colorName = profile?.colorFamily ? getColorName(profile.colorFamily) : null
+
+    async function onGenerateColor() {
+        // 1) turvatarkistus: pitää olla kirjautunut user + profile
+        if (!user || !profile) return
+
+        // 2) Arvotaan uusi väri, mutta ei samaa kuin nykyinen
+        const { family, variant } = generateProfileColor(
+            profile.colorFamily,
+            profile.colorVariant
+        )
+
+        // 3) Päivitetään Firestoreen (null -> HasColor)
+        const ref = doc(db, COLLECTIONS.USERS, user.uid)
+        await updateDoc(ref, {
+            colorFamily: family,
+            colorVariant: variant,
+        })
+
+        // UX: checkbox pois päältä
+        setChecked(false)
+    }
 
     return (
 
@@ -38,12 +74,19 @@ export function ProfileScreen() {
                         <Text style={styles.text}>Aktiivisuutesi tällä hetkellä:</Text>
                         <View style={styles.statsRow}>
                             <View style={styles.stepsCounter}>
-                                <MaterialIcons name="directions-walk" size={28} color={""} />
+                                <MaterialIcons
+                                    name="directions-walk"
+                                    size={28}
+                                    style={accentHex ? { color: accentHex } : undefined}
+                                //style={accentHex ? { backgroundColor: accentHex } : undefined}
+                                />
                                 <Text style={styles.statNumber}>{totalSteps}</Text>
                                 <Text style={styles.statLabel}>Askeleet yhteensä</Text>
                             </View>
                         </View>
                         <Text style={styles.sectionTitle}>DIAGRAMMI 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+
+
                         <View style={styles.generatorSection}>
                             <View style={styles.controlsColumn}>
                                 <View style={styles.checkboxRow}>
@@ -59,7 +102,7 @@ export function ProfileScreen() {
                                 <Button
                                     mode="contained"
                                     buttonColor="black"
-                                    onPress={() => console.log('generoitu')}
+                                    onPress={onGenerateColor}
                                     style={styles.generateButton}
                                     disabled={!checked} // Nappi on himmeä jos ei ruksia
                                 >
@@ -71,8 +114,11 @@ export function ProfileScreen() {
                                     size={40}
                                     // Ottaa nimen ensimmäisen kirjaimen
                                     label={displayName.charAt(0).toUpperCase()}
-                                //style={{ backgroundColor: userColor }}
+                                    style={accentHex ? { backgroundColor: accentHex } : undefined}
                                 />
+                                <Text style={styles.colorName}>
+                                    {colorName ?? "EI PROFIILIVÄRIÄ"}
+                                </Text>
                             </View>
                         </View>
                     </Card.Content>
@@ -197,6 +243,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    colorName: {
+        paddingTop: 10,
     }
 
 })

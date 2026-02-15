@@ -229,13 +229,10 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     const BGcellNumber = findCell4(coord, cells4)
     await AsyncStorage.setItem("currentCell", String(BGcellNumber))
 
-<<<<<<< HEAD
-=======
     const prev = await AsyncStorage.getItem("route")
     const route = prev ? JSON.parse(prev) : []
     route.push(coord)
     await AsyncStorage.setItem("route", JSON.stringify(route))
->>>>>>> 10879b8cc9402ecbd96059829547e5b12a5ed681
 
     console.log("BG User is in cell:", BGcellNumber)
     //console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
@@ -299,11 +296,11 @@ export default function MapViewWithLocation() {
 
   // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
   useEffect(() => {
-  if (!isPlaying) {
-    AsyncStorage.removeItem("route")
-    setRouteCoords([])
-  }
-}, [isPlaying])
+    if (!isPlaying) {
+      AsyncStorage.removeItem("route")
+      setRouteCoords([])
+    }
+  }, [isPlaying])
 
 
 
@@ -316,17 +313,17 @@ export default function MapViewWithLocation() {
     return () => clearInterval(interval)
   }, [])
 
-// Reitin piirtäminen backgroundissa
-useEffect(() => {
-  const interval = setInterval(async () => {
-    const storedRoute = await AsyncStorage.getItem("route")
-    if (storedRoute) {
-      setRouteCoords(JSON.parse(storedRoute))
-    }
-  }, 2000)
+  // Reitin piirtäminen backgroundissa
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const storedRoute = await AsyncStorage.getItem("route")
+      if (storedRoute) {
+        setRouteCoords(JSON.parse(storedRoute))
+      }
+    }, 2000)
 
-  return () => clearInterval(interval)
-}, [])
+    return () => clearInterval(interval)
+  }, [])
 
 
 
@@ -749,7 +746,7 @@ useEffect(() => {
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
       {/*<Text>{debugText}</Text>*/}
       {/*<Text>cell: {debugCell}</Text>*/}
-      <StepsInCell cellNumber={cellNumber}/>
+      <StepsInCell cellNumber={cellNumber} />
 
 
       <TouchableOpacity

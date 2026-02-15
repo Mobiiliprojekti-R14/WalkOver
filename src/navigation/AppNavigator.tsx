@@ -3,7 +3,8 @@
 
 import React from "react"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import { Pressable, Text } from "react-native"
+import { Pressable, Text, StyleSheet } from "react-native"
+
 
 import { HomeScreen } from "../../screens/HomeScreen"
 import { MenuScreen } from "../../screens/MenuScreen"
@@ -47,6 +48,8 @@ export type AppStackParamList = {
 }
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
+
+
 
 export function AppStackNavigator() {
     return (
@@ -97,7 +100,8 @@ export function AppStackNavigator() {
                 options={{
                     headerShown: false,
                     presentation: "modal",
-                    animation: "fade"
+                    animation: "fade",
+                    
                 }}
             />
 
@@ -120,12 +124,19 @@ export function AppStackNavigator() {
 function HomeHeaderRight({ onPress }: { onPress: () => void }) {
     const { profile } = useAuth()
 
+
     const initial = getInitials({
         displayName: profile?.displayName,
         username: profile?.username,
         email: profile?.email,
+
     })
 
 
     return <AvatarButton initial={initial} onPress={onPress} />
 }
+
+
+const styles = StyleSheet.create({
+
+})

@@ -3,6 +3,7 @@
 // Prioriteetti: displayName -> username -> email -> ?
 
 export function getInitials(opts: {
+
     displayName?: string | null
     username?: string | null
     email?: string | null
