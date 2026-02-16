@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker } from 'react-native-maps'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
+import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
+import { setOpacity } from '../src/utils/colorStrings'
+import CellInfoModal from './CellInfoModal'
 import { IconButton } from 'react-native-paper'
 import StepsInCell from './StepsInCell'
 
-type CellData = {
+type CellGeoData = {
   country: string,
   city: string,
   name?: string,
@@ -195,7 +198,7 @@ const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
     return cellIndex
   }
 */
-const findCell4 = (coordinate: LatLng, cellList: CellData[]): number => {
+const findCell4 = (coordinate: LatLng, cellList: CellGeoData[]): number => {
   //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
   for (let i = 0; i < cellList.length; i++) {
@@ -282,7 +285,7 @@ export default function MapViewWithLocation() {
   const mapRef = useRef<MapView>(null)
 
   // marker ref (väliaikainen testi)
-  const markerRef = useRef<MapMarker>(null)
+  //const markerRef = useRef<MapMarker>(null)
 
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
@@ -294,6 +297,23 @@ export default function MapViewWithLocation() {
   const [debugCell, setDebugCell] = useState<number>(-1)
   const [debugText, setDebugText] = useState<string>("")
 
+  //tähän tallennetaan lista objekteista, joissa on cellin alueella liikkuneiden tiedot (haetaan tietokannasta)
+  const [cellUserData, setCellUserData] = useState<CellUserData[] | undefined>([])
+
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [previousFetch, setPreviousFetch] = useState(0)
+
+  useEffect(() => {
+    (async () => {
+      if (isFetchingData) return; //estää usean samanaikaisen haun (toivottavasti... :D)
+      if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
+      setIsFetchingData(true)
+      const cellDataList = await onMapLoad();
+      setCellUserData(cellDataList)
+      setPreviousFetch(Date.now())
+      setIsFetchingData(false)
+    })()
+  }, [cellUserData])
   // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
   useEffect(() => {
     if (!isPlaying) {
@@ -574,7 +594,7 @@ export default function MapViewWithLocation() {
   */
 
   //väliaikainen kunnes cellin väri haetaan tietokannasta käyttäjän värin perusteella
-  const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
+  //const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
 
   /*const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -623,7 +643,7 @@ export default function MapViewWithLocation() {
   }
   */
 
-  const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
+  const handleMapPress = /*async*/ (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
     setDebugCoords(onPressCoords)
     setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
@@ -632,7 +652,10 @@ export default function MapViewWithLocation() {
     const cellNumber = findCell4(onPressCoords, cells4)
     setDebugCell(cellNumber)
 
-    if (cellNumber > -1) setModalVisible(true)
+    if (cellNumber > -1) {
+      /*await*/ //getCellUserData(cellNumber)
+      setModalVisible(true)
+    }
 
     setIsFollowing(false)
     setLastInteraction(Date.now())
@@ -668,7 +691,10 @@ export default function MapViewWithLocation() {
             return <Polygon
               key={index}
               coordinates={cell.coords}
-              fillColor={cellColors[index % 4]} />
+              //fillColor={cellColors[index % 4]}
+              //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
+              fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "40", "#0000") : '#0000'}
+            />
           })
         }
 
@@ -705,41 +731,19 @@ export default function MapViewWithLocation() {
 
       </MapView>
 
-      <Modal
-        animationType='slide'
-        visible={modalVisible}
-        transparent={true}
-        onRequestClose={() => {
-          setModalVisible(false)
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <IconButton
-              style={{ alignSelf: 'flex-end' }}
-              icon='close'
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            />
-            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
-            <View>
-              <Text>Captured by: xyz</Text>
-              <Text>Steps required to capture: 1500</Text>
-            </View>
-            {/*
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </Pressable>
-            */}
-          </View>
-        </View>
-      </Modal>
+      {isFetchingData || !cellUserData/* || true*/ ?
+        <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
+          <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
+          <ActivityIndicator />
+        </View> : null
+      }
+
+      <CellInfoModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        cellUserData={cellUserData}
+        debugCell={debugCell}
+      />
 
       {isPlaying && <PedometerComponent cellNumber={cellNumber} />}
 
@@ -786,7 +790,7 @@ const styles = StyleSheet.create({
   playText: {
     fontSize: 20,
     color: "white"
-  },
+  },/*
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -806,7 +810,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
+  },*/
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
