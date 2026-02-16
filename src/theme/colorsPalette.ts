@@ -69,6 +69,12 @@ export function getAccentHexFromProfile(
     return COLOR_PALETTE[family][variant]
 }
 
+// Palauttaa accentHex suoraan family+variantista
+// Käytetään erityisesti generoinnin jälkeen, kun halutaan tallentaa myös userColor Firestoreen
+export function getAccentHex(family: ColorFamily, variant: ColorVariant): string {
+    return COLOR_PALETTE[family][variant]
+}
+
 
 // VÄRIGENERAATTORI
 

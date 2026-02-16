@@ -12,6 +12,7 @@ import {
     getAccentHexFromProfile,
     getColorName,
     generateProfileColor,
+    getAccentHex,
 } from "../src/theme/colorsPalette";
 
 
@@ -29,7 +30,7 @@ export function ProfileScreen() {
     const totalSteps = cells.reduce((sum, current) => sum + (Number(current) || 0), 0)
 
     // Nykyinen profiiliväri hexinä (tai null jos ei valittu)
-    const accentHex = getAccentHexFromProfile(profile?.colorFamily, profile?.colorVariant)
+    const accentHex = profile?.userColor ?? getAccentHexFromProfile(profile?.colorFamily, profile?.colorVariant)
 
     // Profiilivärin nimi (tai null jos ei valittu)
     const colorName = profile?.colorFamily ? getColorName(profile.colorFamily) : null
@@ -44,11 +45,14 @@ export function ProfileScreen() {
             profile.colorVariant
         )
 
+        const hex = getAccentHex(family, variant)
+
         // 3) Päivitetään Firestoreen (null -> HasColor)
         const ref = doc(db, COLLECTIONS.USERS, user.uid)
         await updateDoc(ref, {
             colorFamily: family,
             colorVariant: variant,
+            userColor: hex,
         })
 
         // UX: checkbox pois päältä

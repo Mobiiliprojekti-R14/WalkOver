@@ -11,7 +11,7 @@ type AvatarButtonProps = {
 
 export function AvatarButton({ initial, onPress }: AvatarButtonProps) {
 
-    const { accentHex, colorName, hasColor } = useProfileColor()
+    const { accentHex } = useProfileColor()
 
     return (
         <Pressable
