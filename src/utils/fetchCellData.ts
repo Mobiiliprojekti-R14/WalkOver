@@ -1,3 +1,5 @@
+//tää tiedosto saattais sopia paremmin ./firebase -kansioon
+
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import { db, COLLECTIONS } from '../../firebase/Config'
 import cells from '../../cells4.json'
@@ -46,7 +48,15 @@ const getCellUserData = async (cellNumber: number) => {
 
 const onMapLoad = async (): Promise<CellUserData[] | undefined> => {
   /* (ajetaan kerran, kun kartta ladataan)
-  * Hakee tietokannasta jokaisen cellin käyttäjädatasta
+  * Hakee tietokannasta jokaiselle cellille kolmen eniten kävelleen käyttäjän tiedot (displayname, askelmäärä, väri (vain #1:lle))
+  * Palauttaa listan (result), jossa on yksi elementti (CellUserData-objekti) jokaista celliä kohden.
+  * Jokainen CellUserData-objekti sisältää seuraavat tiedot cellistä:
+  * - cellin numero (cellNumber)
+  * - ykkössijan displayname, askelmäärä ja väri (firstName, firstSteps, firstColor)
+  * - kakkossijan displayname ja askelmäärä (secondName, secondSteps)
+  * - kolmossijan displayname ja askelmäärä (thirdName, thirdSteps)
+  * Mikäli cellin alueella ei ole tarpeeksi montaa kävelijää top 3:seen, vastaavat kentät
+  * saavat arvon undefined, jotka täytyy käsitellä funktiota hyödyntävissä komponenteissa erikseen
   */
   try {
     console.log("onmapload started")

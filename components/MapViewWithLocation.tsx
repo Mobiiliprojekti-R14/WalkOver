@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker } from 'react-native-maps'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
-import { IconButton } from 'react-native-paper'
 import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
 import { setOpacity } from '../src/utils/colorStrings'
+import CellInfoModal from './CellInfoModal'
 
 type CellGeoData = {
   country: string,
@@ -303,7 +303,6 @@ export default function MapViewWithLocation() {
       if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
       setIsFetchingData(true)
       const cellDataList = await onMapLoad();
-      //console.log(cellDataList[6]) //{"cellNumber": 7, "firstColor": "#666", "firstName": "mikkotestaa2", "firstSteps": 351, "secondName": "mikkotestaa", "secondSteps": 208, "thirdName": undefined, "thirdSteps": undefined}
       setCellUserData(cellDataList)
       setPreviousFetch(Date.now())
       setIsFetchingData(false)
@@ -711,53 +710,12 @@ export default function MapViewWithLocation() {
         </View> : null
       }
 
-      <Modal
-        animationType='slide'
-        visible={modalVisible}
-        transparent={true}
-        onRequestClose={() => {
-          setModalVisible(false)
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <IconButton
-              style={{ alignSelf: 'flex-end' }}
-              icon='close'
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            />
-            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
-            <View>
-              <Text>
-                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
-              </Text>
-              <Text>
-                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].secondName ? `2nd place: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} steps)` : ""}
-                {/*cellUserData ? `2nd place: ${cellUserData[debugCell - 1]?.secondName} (${cellUserData[debugCell - 1]?.secondSteps} steps)` : ""*/}
-              </Text>
-              <Text>
-                {cellUserData && cellUserData[debugCell - 1] && cellUserData[debugCell - 1].thirdName ? `3rd place: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} steps)` : ""}
-                {/*cellUserData ? `3rd place: ${cellUserData[debugCell - 1]?.thirdName} (${cellUserData[debugCell - 1]?.thirdSteps} steps)` : ""*/}
-              </Text>
-              <Text>tähän kaavio? (esim pylväsdiagrammi jossa top 3 askeleet ja käyttäjän askeleet [max 4 pylvästä]?)</Text>
-              {/* pylväiden värit userColorista? */}
-              <View></View>
-            </View>
-            {/*
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </Pressable>
-            */}
-          </View>
-        </View>
-      </Modal>
+      <CellInfoModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        cellUserData={cellUserData}
+        debugCell={debugCell}
+      />
 
       {isPlaying && <PedometerComponent cellNumber={cellNumber} />}
 
@@ -803,7 +761,7 @@ const styles = StyleSheet.create({
   playText: {
     fontSize: 20,
     color: "white"
-  },
+  },/*
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -823,7 +781,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
+  },*/
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
