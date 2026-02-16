@@ -6,9 +6,15 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { db, auth, COLLECTIONS } from "../../firebase/Config"
 
-import { doc, getDoc } from "firebase/firestore"
-//import firebase from "firebase/compat/app"
+import { doc, onSnapshot } from "firebase/firestore"
 
+// Väriteemat
+export type ColorFamily =
+    | "blue"
+    | "green"
+    | "violet"
+    | "orange"
+    | "pink"
 
 // Profiilin tiedot, joita UI tarvitsee
 export type UserProfile = {
@@ -16,6 +22,10 @@ export type UserProfile = {
     username: string | null
     email: string | null
     cells: number[] | null
+    userColor: string | null
+
+    colorFamily: ColorFamily | null
+    colorVariant: 1 | 2 | 3 | 4 | null
 }
 // Contextin muoto
 type AuthContextValue = {
@@ -50,9 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return unsubscribe
     }, [])
 
-    //2) Ladataan Firestore-profiili aina kun user muuttuu
+
+
     useEffect(() => {
         let cancelled = false
+        let unsubscribeSnapshot: (() => void) | null = null
 
         async function loadProfile() {
             if (!user) {
@@ -66,58 +78,107 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 const email = user.email ?? null
                 const ref = doc(db, COLLECTIONS.USERS, user.uid)
-                const snap = await getDoc(ref)
 
-                if (cancelled) return
+                // MUUTOS: getDoc -> onSnapshot
+                unsubscribeSnapshot = onSnapshot(
+                    ref,
+                    (snap) => {
+                        if (cancelled) return
 
-                if (snap.exists()) {
-                    const data = snap.data() as { 
-                        displayName?: string,
-                        username?: string,
-                        oulu1?: number,
-                        oulu2?: number,
-                        oulu3?: number,
-                        oulu4?: number,
-                        oulu5?: number,
-                        oulu6?: number,
-                        oulu7?: number,
-                        oulu8?: number,
-                        oulu9?: number,
-                        oulu10?: number,
-                        oulu11?: number,
-                        oulu12?: number,
-                        oulu13?: number,
-                        oulu14?: number,
-                        oulu15?: number,
-                        oulu16?: number
+                        if (snap.exists()) {
+                            const data = snap.data() as {
+                                displayName?: string
+                                username?: string
+                                userColor?: string
+                                colorFamily?: ColorFamily
+                                colorVariant?: 1 | 2 | 3 | 4
+                                oulu1?: number
+                                oulu2?: number
+                                oulu3?: number
+                                oulu4?: number
+                                oulu5?: number
+                                oulu6?: number
+                                oulu7?: number
+                                oulu8?: number
+                                oulu9?: number
+                                oulu10?: number
+                                oulu11?: number
+                                oulu12?: number
+                                oulu13?: number
+                                oulu14?: number
+                                oulu15?: number
+                                oulu16?: number
+                            }
+
+                            // family + variant aina parina
+                            const rawFamily = data.colorFamily ?? null
+                            const rawVariant = data.colorVariant ?? null
+
+                            let colorFamily: ColorFamily | null = null
+                            let colorVariant: 1 | 2 | 3 | 4 | null = null
+
+                            if (rawFamily !== null && rawVariant !== null) {
+                                colorFamily = rawFamily
+                                colorVariant = rawVariant
+                            }
+
+                            setProfile({
+                                displayName: data.displayName ?? null,
+                                username: data.username ?? null,
+                                email,
+                                userColor: data.userColor ?? null,
+                                colorFamily,
+                                colorVariant,
+                                cells: [
+                                    data.oulu1 ?? 0,
+                                    data.oulu2 ?? 0,
+                                    data.oulu3 ?? 0,
+                                    data.oulu4 ?? 0,
+                                    data.oulu5 ?? 0,
+                                    data.oulu6 ?? 0,
+                                    data.oulu7 ?? 0,
+                                    data.oulu8 ?? 0,
+                                    data.oulu9 ?? 0,
+                                    data.oulu10 ?? 0,
+                                    data.oulu11 ?? 0,
+                                    data.oulu12 ?? 0,
+                                    data.oulu13 ?? 0,
+                                    data.oulu14 ?? 0,
+                                    data.oulu15 ?? 0,
+                                    data.oulu16 ?? 0,
+                                ],
+                            })
+                        } else {
+                            setProfile({
+                                displayName: null,
+                                username: null,
+                                email,
+                                userColor: null,
+                                colorFamily: null,
+                                colorVariant: null,
+                                cells: Array(16).fill(0),
+                            })
+                        }
+
+                        setProfileLoading(false)
+                    },
+                    (error) => {
+                        console.warn("Profiilin snapshot epäonnistui", error)
+                        if (cancelled) return
+
+                        setProfile({
+                            displayName: null,
+                            username: null,
+                            email: user.email ?? null,
+                            userColor: null,
+                            colorFamily: null,
+                            colorVariant: null,
+                            cells: Array(16).fill(0),
+                        })
+
+                        setProfileLoading(false)
                     }
-                    setProfile({
-                        displayName: data.displayName ?? null,
-                        username: data.username ?? null,
-                        email,
-                        cells: [
-                            data.oulu1 ?? 0,
-                            data.oulu2 ?? 0,
-                            data.oulu3 ?? 0,
-                            data.oulu4 ?? 0,
-                            data.oulu5 ?? 0,
-                            data.oulu6 ?? 0,
-                            data.oulu7 ?? 0,
-                            data.oulu8 ?? 0,
-                            data.oulu9 ?? 0,
-                            data.oulu10 ?? 0,
-                            data.oulu11 ?? 0,
-                            data.oulu12 ?? 0,
-                            data.oulu13 ?? 0,
-                            data.oulu14 ?? 0,
-                            data.oulu15 ?? 0,
-                            data.oulu16 ?? 0
-                        ]
-                    })
-                } else {
-                    // Profiilia ei vielä ole -> pidetään email mukana
-                    setProfile({ displayName: null, username: null, email, cells: Array(16).fill(0) })
-                }
+                )
             } catch (e) {
                 console.warn("Profiilin lataus epäonnistui", e)
                 if (!cancelled) {
@@ -125,17 +186,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         displayName: null,
                         username: null,
                         email: user.email ?? null,
-                        cells: Array(16).fill(0)
+                        userColor: null,
+                        colorFamily: null,
+                        colorVariant: null,
+                        cells: Array(16).fill(0),
                     })
                 }
-            } finally {
                 if (!cancelled) setProfileLoading(false)
             }
         }
 
         loadProfile()
+
         return () => {
             cancelled = true
+            if (unsubscribeSnapshot) unsubscribeSnapshot()
         }
     }, [user])
 

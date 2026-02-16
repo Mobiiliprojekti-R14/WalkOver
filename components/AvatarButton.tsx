@@ -1,19 +1,31 @@
 import React from "react"
 import { Pressable, Text, StyleSheet } from "react-native"
 
+import { useProfileColor } from "../src/theme/useProfileColor"
+
+
 type AvatarButtonProps = {
     initial: string
     onPress: () => void
 }
 
 export function AvatarButton({ initial, onPress }: AvatarButtonProps) {
+
+    const { accentHex } = useProfileColor()
+
     return (
         <Pressable
             onPress={onPress}
             hitSlop={10}
-            style={({ pressed }) => [styles.circle, pressed && styles.pressed]}
+            style={({ pressed }) => [
+                accentHex && { backgroundColor: accentHex },
+                styles.circle,
+                pressed && styles.pressed,
+            ]}
         >
-            <Text style={styles.letter}>{initial}</Text>
+            <Text
+                style={styles.letter}>{initial}
+            </Text>
         </Pressable>
     )
 }
@@ -29,12 +41,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         borderWidth: StyleSheet.hairlineWidth,
+
     },
     letter: {
         fontSize: 16,
         fontWeight: "800",
+
+
     },
     pressed: {
-        opacity: 0.6
+        opacity: 0.8
     },
 })
