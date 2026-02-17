@@ -46,7 +46,7 @@ const getCellUserData = async (cellNumber: number) => {
 }
 */
 
-const onMapLoad = async (): Promise<CellUserData[] | undefined> => {
+const onMapLoad = async (): Promise<CellUserData[]> => {
   /* (ajetaan kerran, kun kartta ladataan)
   * Hakee tietokannasta jokaiselle cellille kolmen eniten kävelleen käyttäjän tiedot (displayname, askelmäärä, väri (vain #1:lle))
   * Palauttaa listan (result), jossa on yksi elementti (CellUserData-objekti) jokaista celliä kohden.
@@ -58,9 +58,10 @@ const onMapLoad = async (): Promise<CellUserData[] | undefined> => {
   * Mikäli cellin alueella ei ole tarpeeksi montaa kävelijää top 3:seen, vastaavat kentät
   * saavat arvon undefined, jotka täytyy käsitellä funktiota hyödyntävissä komponenteissa erikseen
   */
+
+  const result = []
   try {
     console.log("onmapload started")
-    const result = []
     //console.log("cells import length: ", cells.length)
     for (let i = 0; i < cells.length; i++) {
       const q = query(usersRef, where(`${PREFIX}${i + 1}`, ">", 0), orderBy(`${PREFIX}${i + 1}`, "desc"), limit(3))
@@ -107,10 +108,10 @@ const onMapLoad = async (): Promise<CellUserData[] | undefined> => {
 
     console.log("onMapLoad success")
 
-    return result
-
   } catch (err) {
     console.error(err)
+  } finally {
+    return result
   }
 }
 
