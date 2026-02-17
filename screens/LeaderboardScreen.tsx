@@ -37,25 +37,29 @@ export function LeaderboardScreen() {
         {
             value: top1Areas,
             color: top3[0]?.userColor ?? "#ffbf00",
-            text: `${top1Areas}`,
+            // text: `${top1Areas}`,
+            text: "#1",
             label: top3[0]?.displayName || "Top 1"
         },
         {
             value: top2Areas,
             color: top3[1]?.userColor ?? "#c0c0c0",
-            text: `${top2Areas}`,
+            // text: `${top2Areas}`,
+            text: "#2",
             label: top3[1]?.displayName || "Top 2"
         },
         {
             value: top3Areas,
             color: top3[2]?.userColor ?? "#CD7F32",
-            text: `${top3Areas}`,
+            // text: `${top3Areas}`,
+            text: "#3",
             label: top3[2]?.displayName || "Top 3"
         },
         {
             value: otherAreas,
             color: '#6f6f6f',
-            text: `${otherAreas}`,
+            // text: `${otherAreas}`,
+            text: "Loput alueet",
             label: "Muut"
         }
     ];
