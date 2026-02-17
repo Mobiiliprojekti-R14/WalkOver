@@ -1,45 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native"
 import { Card, Button, Checkbox, Avatar } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from "../src/auth/AuthProvider";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { doc, updateDoc } from "firebase/firestore"
+import { db, COLLECTIONS } from "../firebase/Config"
+
+import {
+    getAccentHexFromProfile,
+    getColorName,
+    generateProfileColor,
+    getAccentHex,
+} from "../src/theme/colorsPalette";
+
 
 export function ProfileScreen() {
-    const { profile } = useAuth()
-    const displayName = profile?.displayName || "Käyttäjä"
-
-
+    const { user, profile } = useAuth()
     const insets = useSafeAreaInsets()
-
     const [checked, setChecked] = useState(false)
 
-    const userColor = profile?.userColor || '#4682B4'
+    const displayName = profile?.displayName || "Käyttäjä"
+    //const userColor = profile?.userColor || '#4682B4'
 
-    //Alustetaan summa nollaksi
-    let totalSteps = 0
+    //Haetaan cells taulukko joka sisältää arvot oulu1-oulu16 askeleet
+    const cells = profile?.cells || Array(16).fill(0)
+    //Lasketaan taulukon luvuista summa
+    const totalSteps = cells.reduce((sum, current) => sum + (Number(current) || 0), 0)
 
-    //Käydään läpi numerot 1-16
-    for (let i = 1; i <= 16; i++) {
-        const steps = `oulu${i}`
-        const value = profile ? (profile as any)[steps] : 0
+    // Nykyinen profiiliväri hexinä (tai null jos ei valittu)
+    const accentHex = profile?.userColor ?? getAccentHexFromProfile(profile?.colorFamily, profile?.colorVariant)
 
-        //Lisätään summaan, jos löytyy arvo
-        totalSteps += Number(value) || 0
+    // Profiilivärin nimi (tai null jos ei valittu)
+    const colorName = profile?.colorFamily ? getColorName(profile.colorFamily) : null
+
+    async function onGenerateColor() {
+        // 1) turvatarkistus: pitää olla kirjautunut user + profile
+        if (!user || !profile) return
+
+        // 2) Arvotaan uusi väri, mutta ei samaa kuin nykyinen
+        const { family, variant } = generateProfileColor(
+            profile.colorFamily,
+            profile.colorVariant
+        )
+
+        const hex = getAccentHex(family, variant)
+
+        // 3) Päivitetään Firestoreen (null -> HasColor)
+        const ref = doc(db, COLLECTIONS.USERS, user.uid)
+        await updateDoc(ref, {
+            colorFamily: family,
+            colorVariant: variant,
+            userColor: hex,
+        })
+
+        // UX: checkbox pois päältä
+        setChecked(false)
     }
 
     return (
 
         <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-            {/*<View style={[styles.header, { paddingTop: insets.top }]}>*/}
-            {/*<Button
-                            style={styles.backButton}
-                            onPress={() => console.log('Takaisin')}
-                        >
-                            <MaterialIcons name="arrow-back" size={30} color="black" />
-                        </Button>
-                    </View>*/}
 
             <ScrollView
                 style={styles.scrollView}
@@ -56,12 +78,19 @@ export function ProfileScreen() {
                         <Text style={styles.text}>Aktiivisuutesi tällä hetkellä:</Text>
                         <View style={styles.statsRow}>
                             <View style={styles.stepsCounter}>
-                                <MaterialIcons name="directions-walk" size={28} color={userColor} />
+                                <MaterialIcons
+                                    name="directions-walk"
+                                    size={28}
+                                    style={accentHex ? { color: accentHex } : undefined}
+                                //style={accentHex ? { backgroundColor: accentHex } : undefined}
+                                />
                                 <Text style={styles.statNumber}>{totalSteps}</Text>
                                 <Text style={styles.statLabel}>Askeleet yhteensä</Text>
                             </View>
                         </View>
                         <Text style={styles.sectionTitle}>DIAGRAMMI 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+
+
                         <View style={styles.generatorSection}>
                             <View style={styles.controlsColumn}>
                                 <View style={styles.checkboxRow}>
@@ -77,7 +106,7 @@ export function ProfileScreen() {
                                 <Button
                                     mode="contained"
                                     buttonColor="black"
-                                    onPress={() => console.log('generoitu')}
+                                    onPress={onGenerateColor}
                                     style={styles.generateButton}
                                     disabled={!checked} // Nappi on himmeä jos ei ruksia
                                 >
@@ -89,8 +118,11 @@ export function ProfileScreen() {
                                     size={40}
                                     // Ottaa nimen ensimmäisen kirjaimen
                                     label={displayName.charAt(0).toUpperCase()}
-                                    style={{ backgroundColor: userColor }}
+                                    style={accentHex ? { backgroundColor: accentHex } : undefined}
                                 />
+                                <Text style={styles.colorName}>
+                                    {colorName ?? "EI PROFIILIVÄRIÄ"}
+                                </Text>
                             </View>
                         </View>
                     </Card.Content>
@@ -215,6 +247,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    colorName: {
+        paddingTop: 10,
     }
 
 })

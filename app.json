@@ -27,11 +27,6 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION",
-        "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_LOCATION"
       ],
       "foregroundService": {
@@ -41,10 +36,10 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": ""
+          "apiKey": "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
         }
       },
-      "package": "fi.joku14.walkover"
+      "package": "com.villek.walkover"
     },
     "web": {
       "favicon": "./assets/favicon.png"

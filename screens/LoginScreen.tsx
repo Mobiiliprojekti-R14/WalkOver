@@ -3,6 +3,7 @@ import { View, KeyboardAvoidingView, ScrollView, Platform, StyleSheet } from 're
 import { Text, TextInput, Card, Button } from 'react-native-paper';
 import { login, logout } from '../src/services/SignInService';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LoggingInScreen } from './LoggingInScreen';
 
 type Props = {
   onSwitchToSignUp: () => void
@@ -12,19 +13,26 @@ export function LoginScreen({ onSwitchToSignUp }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [securePassword, setSecurePassword] = useState(true)
-
+  const [isLoggingIn, setIsLoggingIn] = useState(false) //Kun tila true, korvataan kirjautumisikkuna latausruudulla
 
   const handleLogin = async () => {
+    setIsLoggingIn(true) //Avaa latausruudun
     console.log('Yritetään kirjautua:', username)
-
     const user = await login(username, password)
+
     if (user) {
       console.log('Kirjautuminen onnistui', user.uid)
-      alert('Kirjautuminen onnistui')
+      //alert('Kirjautuminen onnistui')
+
     } else {
       console.log('Kirjautuminen epäonnistui')
       alert('Kirjautuminen epäonnistui')
+      setIsLoggingIn(false) //Palauttaa käyttäjän kirjautumisikkunaan, kirjautuminen ei onnistunut
     }
+  }
+
+  if (isLoggingIn) {
+    return <LoggingInScreen />
   }
 
   return (
@@ -46,7 +54,7 @@ export function LoginScreen({ onSwitchToSignUp }: Props) {
 
               <TextInput
                 mode="outlined"
-                placeholder='Käyttäjänimi'
+                label='Käyttäjänimi'
                 value={username}
                 onChangeText={setUsername}
                 style={styles.input}
@@ -54,7 +62,7 @@ export function LoginScreen({ onSwitchToSignUp }: Props) {
 
               <TextInput
                 mode="outlined"
-                placeholder='Salasana'
+                label='Salasana'
                 secureTextEntry={securePassword}
                 value={password}
                 onChangeText={setPassword}

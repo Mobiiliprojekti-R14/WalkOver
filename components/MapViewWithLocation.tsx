@@ -1,22 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, Marker, MapPressEvent, PoiClickEvent, MapMarker } from 'react-native-maps'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent, MapPolygon } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
-import { IconButton } from 'react-native-paper'
+import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
+import { setOpacity } from '../src/utils/colorStrings'
+import CellInfoModal from './CellInfoModal'
+import StepsInCell from './StepsInCell'
 
-type CellData = {
+type CellGeoData = {
   country: string,
   city: string,
   name?: string,
   coords: LatLng[]
 }
 
-  //const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
-  //const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
+//const coords = [{ latitude: 65.01, longitude: 25.5 }, { latitude: 65.03, longitude: 25.7 }, { latitude: 65.04, longitude: 25.3 }] //tän voi varmaan poistaa?
+//const coords2 = [{ latitude: 65.089615, longitude: 25.377071 }, { latitude: 65.08917, longitude: 25.71861 }, { latitude: 64.94528, longitude: 25.71861 }, { latitude: 64.94583, longitude: 25.37694 }] // Koko pelialue
 
 /*
   const cell1: LatLng[] = [
@@ -131,39 +134,39 @@ type CellData = {
     { latitude: 64.94583, longitude: 25.63322525 },
   ]
 */
-  const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
-    //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
-    //lähinnä apufunktio alempana määritellylle findCell-funktiolle
+const isInsideCell = (coordinate: LatLng, cell: LatLng[]): boolean => {
+  //palauttaa true, jos käsiteltävä piste (coordinate-parametri) on alueen (cell-parametri) sisällä, muuten palauttaa false
+  //lähinnä apufunktio alempana määritellylle findCell-funktiolle
 
-    const latitudes = cell.map((point) => { return point.latitude })
-    const longitudes = cell.map((point) => { return point.longitude })
+  const latitudes = cell.map((point) => { return point.latitude })
+  const longitudes = cell.map((point) => { return point.longitude })
 
-    const latMin = Math.min(...latitudes)
-    const latMax = Math.max(...latitudes)
-    const longMin = Math.min(...longitudes)
-    const longMax = Math.max(...longitudes)
+  const latMin = Math.min(...latitudes)
+  const latMax = Math.max(...latitudes)
+  const longMin = Math.min(...longitudes)
+  const longMax = Math.max(...longitudes)
 
-    if (coordinate.latitude <= latMin) {
-      //piste on cellin alareunan alapuolella
-      return false
-    }
-    else if (coordinate.latitude >= latMax) {
-      //piste on cellin yläreunan yläpuolella
-      return false
-    }
-    else if (coordinate.longitude <= longMin) {
-      //piste on cellin vasemman reunan vasemmalla puolella
-      return false
-    }
-    else if (coordinate.longitude >= longMax) {
-      //piste on cellin oikean reunan oikealla puolella
-      return false
-    }
-    else {
-      //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
-      return true
-    }
+  if (coordinate.latitude <= latMin) {
+    //piste on cellin alareunan alapuolella
+    return false
   }
+  else if (coordinate.latitude >= latMax) {
+    //piste on cellin yläreunan yläpuolella
+    return false
+  }
+  else if (coordinate.longitude <= longMin) {
+    //piste on cellin vasemman reunan vasemmalla puolella
+    return false
+  }
+  else if (coordinate.longitude >= longMax) {
+    //piste on cellin oikean reunan oikealla puolella
+    return false
+  }
+  else {
+    //käsitelty kaikki tapaukset, joissa piste on alueen ulkopuolella, joten pisteen täytyy olla alueen sisällä
+    return true
+  }
+}
 /*
   const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -194,7 +197,7 @@ type CellData = {
     return cellIndex
   }
 */
-const findCell4 = (coordinate: LatLng, cellList: CellData[]): number => {
+const findCell4 = (coordinate: LatLng, cellList: CellGeoData[]): number => {
   //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
 
   for (let i = 0; i < cellList.length; i++) {
@@ -228,7 +231,11 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     const BGcellNumber = findCell4(coord, cells4)
     await AsyncStorage.setItem("currentCell", String(BGcellNumber))
 
-    
+    const prev = await AsyncStorage.getItem("route")
+    const route = prev ? JSON.parse(prev) : []
+    route.push(coord)
+    await AsyncStorage.setItem("route", JSON.stringify(route))
+
     console.log("BG User is in cell:", BGcellNumber)
     //console.log('Background locations:', locations) //Kommentoi pois jos haluat nähdä sijaintilokeja
   }
@@ -276,27 +283,77 @@ export default function MapViewWithLocation() {
   // Kartan ref (animateToRegion varten)
   const mapRef = useRef<MapView>(null)
 
-  // marker ref (väliaikainen testi)
-  const markerRef = useRef<MapMarker>(null)
-
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
-  
+
   const [cellNumber, setCellNumber] = useState<number>(-1)
 
   //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
-  const [debugCoords, setDebugCoords] = useState<LatLng>()
+  //const [debugCoords, setDebugCoords] = useState<LatLng>()
   const [debugCell, setDebugCell] = useState<number>(-1)
-  const [debugText, setDebugText] = useState<string>("")
+  //const [debugText, setDebugText] = useState<string>("")
+
+  //tähän tallennetaan lista objekteista, joissa on cellin alueella liikkuneiden tiedot (haetaan tietokannasta)
+  const [cellUserData, setCellUserData] = useState<CellUserData[]>([])
+
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [previousFetch, setPreviousFetch] = useState(0)
+
+  /*
+  const polygons = cells4.map((cell, index) => {
+    return <Polygon
+      key={`polygon${index}-${cell.name}-${Math.random()}`}
+      coordinates={cell.coords}
+      //fillColor={cellColors[index % 4]}
+      //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
+      fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "70", "#0000") : '#0000'}
+    />
+  })
+  */
 
   useEffect(() => {
-  const interval = setInterval(async () => {
-    const stored = await AsyncStorage.getItem("currentCell")
-    if (stored) setCellNumber(Number(stored))
-  }, 1000)
+    (async () => {
+      if (isFetchingData) return; //estää usean samanaikaisen haun (toivottavasti... :D)
+      if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
+      setIsFetchingData(true)
+      const cellDataList = await onMapLoad();
+      setCellUserData(cellDataList)
+      setPreviousFetch(Date.now())
+      setIsFetchingData(false)
+    })()
+  }, [])
 
-  return () => clearInterval(interval)
-}, [])
+  // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
+  useEffect(() => {
+    if (!isPlaying) {
+      AsyncStorage.removeItem("route")
+      setRouteCoords([])
+    }
+  }, [isPlaying])
+
+
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const stored = await AsyncStorage.getItem("currentCell")
+      if (stored) setCellNumber(Number(stored))
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Reitin piirtäminen backgroundissa
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const storedRoute = await AsyncStorage.getItem("route")
+      if (storedRoute) {
+        setRouteCoords(JSON.parse(storedRoute))
+      }
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [])
+
 
 
   // Ensimmäisen sijainnin haku heti kun karttanäkymä avataan
@@ -369,7 +426,7 @@ export default function MapViewWithLocation() {
             const { latitude, longitude } = pos.coords
             setCurrentLocation({ latitude, longitude })
             setRouteCoords((prev) => [...prev, { latitude, longitude }])
-            const FGcellNumber = findCell4({latitude,longitude}, cells4)
+            const FGcellNumber = findCell4({ latitude, longitude }, cells4)
             console.log("FG User is in cell:", FGcellNumber)
           }
         )
@@ -423,7 +480,7 @@ export default function MapViewWithLocation() {
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{margin: 8}}>Fetching location...</Text>
+      <Text style={{ margin: 8 }}>Fetching location...</Text>
       <ActivityIndicator />
     </View>
   )
@@ -546,7 +603,7 @@ export default function MapViewWithLocation() {
   */
 
   //väliaikainen kunnes cellin väri haetaan tietokannasta käyttäjän värin perusteella
-  const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
+  //const cellColors: string[] = ["#ff000040", "#00ff0040", "#0000ff40", "#ffff0040"]
 
   /*const findCell = (coordinate: LatLng): number => {
     //palauttaa cellin numeron, jonka sisälle piste kuuluu. Jos piste ei kuulu minkään cellin sisälle, palauttaa -1
@@ -595,16 +652,19 @@ export default function MapViewWithLocation() {
   }
   */
 
-  const handleMapPress = (e: MapPressEvent | PoiClickEvent) => {
+  const handleMapPress = /*async*/ (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
-    setDebugCoords(onPressCoords)
-    setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+    //setDebugCoords(onPressCoords)
+    //setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
 
     //const cellNumber = findCell(onPressCoords)
     const cellNumber = findCell4(onPressCoords, cells4)
     setDebugCell(cellNumber)
 
-    if (cellNumber > -1) setModalVisible(true)
+    if (cellNumber > -1) {
+      /*await*/ //getCellUserData(cellNumber)
+      setModalVisible(true)
+    }
 
     setIsFollowing(false)
     setLastInteraction(Date.now())
@@ -635,12 +695,16 @@ export default function MapViewWithLocation() {
           />
         )}
 
+        {/* polygons */}
         {
           cells4.map((cell, index) => {
             return <Polygon
-              key={index}
+              key={`polygon${index}-${cell.name}-${Math.random()}`}
               coordinates={cell.coords}
-              fillColor={cellColors[index % 4]} />
+              //fillColor={cellColors[index % 4]}
+              //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
+              fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "70", "#0000") : '#0000'}
+            />
           })
         }
 
@@ -677,47 +741,26 @@ export default function MapViewWithLocation() {
 
       </MapView>
 
-      <Modal
-        animationType='slide'
-        visible={modalVisible}
-        transparent={true}
-        onRequestClose={() => {
-          setModalVisible(false)
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <IconButton
-              style={{ alignSelf: 'flex-end' }}
-              icon='close'
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            />
-            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
-            <View>
-              <Text>Captured by: xyz</Text>
-              <Text>Steps required to capture: 1500</Text>
-            </View>
-            {/*
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => {
-                setModalVisible(false)
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </Pressable>
-            */}
-          </View>
+      {(isFetchingData || !cellUserData)/* || true*/ &&
+        <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
+          <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
+          <ActivityIndicator />
         </View>
-      </Modal>
+      }
+
+      <CellInfoModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        cellUserData={cellUserData}
+        debugCell={debugCell}
+      />
 
       {isPlaying && <PedometerComponent cellNumber={cellNumber} />}
 
       {/* debug tekstit karttanäkymän alla, voi poistaa myöhemmästä toteutuksesta! */}
-      <Text>{debugText}</Text>
-      <Text>cell: {debugCell}</Text>
+      {/*<Text>{debugText}</Text>*/}
+      {/*<Text>cell: {debugCell}</Text>*/}
+      <StepsInCell cellNumber={cellNumber} />
 
 
       <TouchableOpacity
@@ -740,11 +783,11 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '90%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
+    height: '80%', //karttanäkymän korkeutta alennettu hieman, jotta debug tekstit saa näkyviin sen alapuolelle (väliaikainen)
   },
   playButton: {
     position: "absolute",
-    bottom: 100,
+    bottom: 150,
     left: 70,
     right: 70,
     alignItems: "center",
@@ -757,27 +800,12 @@ const styles = StyleSheet.create({
   playText: {
     fontSize: 20,
     color: "white"
-  },
+  },/*
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+  },*/
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
