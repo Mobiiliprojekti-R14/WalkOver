@@ -3,9 +3,67 @@ import { View, Text, StyleSheet, ScrollView } from "react-native"
 import { Card, Button } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAllUserSteps } from "../hooks/useAllUserSteps";
+import { PieChart } from "react-native-gifted-charts"
+import { calculateTop3 } from "../src/utils/calculateTop3";
+import { useAuth } from "../src/auth/AuthProvider";
+
 
 
 export function LeaderboardScreen() {
+    const { profile } = useAuth()
+    const { users, loading } = useAllUserSteps()
+
+
+
+
+    if (loading) {
+        return <Text>Ladataan...</Text>;
+    }
+
+    const top3 = calculateTop3(users)
+    if (!users || users.length === 0) { return <Text>Ei käyttäjiä</Text>; }
+    const totalAreas = Object.keys(users[0]).filter(k => k.startsWith("oulu")).length;
+    const top1Areas = top3[0]?.controlledAreas ?? 0;
+    const top2Areas = top3[1]?.controlledAreas ?? 0;
+    const top3Areas = top3[2]?.controlledAreas ?? 0;
+
+    const usedAreas = top1Areas + top2Areas + top3Areas;
+    const otherAreas = Math.max(totalAreas - usedAreas, 0);
+
+
+
+    const pieData = [
+        {
+            value: top1Areas,
+            color: top3[0]?.userColor ?? "#ffbf00",
+            // text: `${top1Areas}`,
+            text: "#1",
+            label: top3[0]?.displayName || "Top 1"
+        },
+        {
+            value: top2Areas,
+            color: top3[1]?.userColor ?? "#c0c0c0",
+            // text: `${top2Areas}`,
+            text: "#2",
+            label: top3[1]?.displayName || "Top 2"
+        },
+        {
+            value: top3Areas,
+            color: top3[2]?.userColor ?? "#CD7F32",
+            // text: `${top3Areas}`,
+            text: "#3",
+            label: top3[2]?.displayName || "Top 3"
+        },
+        {
+            value: otherAreas,
+            color: '#6f6f6f',
+            // text: `${otherAreas}`,
+            text: "Loput alueet",
+            label: "Muut"
+        }
+    ];
+
 
     const insets = useSafeAreaInsets()
     return (
@@ -32,19 +90,24 @@ export function LeaderboardScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text style={styles.sectionTitle}>Pelin TOP 3:</Text>
-                        <Text style={styles.text}>
-                            - Pelaaja 1
-                            {'\n'}
-                            - Pelaaja 2
-                            {'\n'}
-                            - Pelaaja 3
-                            {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}
-                        </Text>
+                        {top3.map((u, i) => (
+                            <Text key={i}>{i + 1}. {u.displayName} – {u.controlledAreas} aluetta </Text>
+                        ))}
+                        <Text>{'\n'}</Text>
+                        <PieChart
+                            data={pieData}
+                            showText
+                            textColor="white"
+                            radius={120}
+                            textSize={14}
+                        />
 
-                        <Text style={styles.sectionTitle}>Diagrammi 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+
+                        {/* <Text style={styles.sectionTitle}>Diagrammi 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text> */}
                     </Card.Content>
                 </Card>
             </ScrollView>
+
         </View>
     )
 }
