@@ -6,6 +6,8 @@ import { useAuth } from "../src/auth/AuthProvider"
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BarChart } from "react-native-gifted-charts"
 
+import { ConquestDonutCard } from "../components/ConquestDonutCard";
+
 import { doc, updateDoc } from "firebase/firestore"
 import { db, COLLECTIONS } from "../firebase/Config"
 
@@ -117,6 +119,7 @@ export function ProfileScreen() {
                         <Text style={styles.text}>Vallatut alueesi:</Text>
 
 
+                        <ConquestDonutCard />
 
                         <View style={styles.generatorSection}>
                             <View style={styles.controlsColumn}>
@@ -154,6 +157,8 @@ export function ProfileScreen() {
                         </View>
                     </Card.Content>
                 </Card>
+
+
             </ScrollView>
         </View>
     )

@@ -4,14 +4,15 @@ import { CellUserData } from '../src/utils/fetchCellData'
 import { IconButton } from 'react-native-paper'
 import { BarChart, barDataItem } from 'react-native-gifted-charts'
 
+
 type Props = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
-  cellUserData: CellUserData[] | undefined
+  cellUserData: CellUserData[]
   debugCell: number
 }
 
-export default function CellInfoModal({modalVisible, setModalVisible, cellUserData, debugCell}: Props) {
+export default function CellInfoModal({ modalVisible, setModalVisible, cellUserData, debugCell }: Props) {
 
   if (debugCell < 1) return;
 
