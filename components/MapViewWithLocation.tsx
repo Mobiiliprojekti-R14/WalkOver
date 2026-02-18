@@ -330,15 +330,25 @@ export default function MapViewWithLocation() {
   */
 
   useEffect(() => {
-    (async () => {
-      if (isFetchingData) return; //estää usean samanaikaisen haun (toivottavasti... :D)
-      if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
+    const CELL_UPDATE_INTERVAL = 60000 //kuinka usein alueiden data päivitetään (millisekunteina)
+    const fetchData = async () => {
+      console.log("start fetchdata")
       setIsFetchingData(true)
       const cellDataList = await onMapLoad();
       setCellUserData(cellDataList)
       setPreviousFetch(Date.now())
       setIsFetchingData(false)
-    })()
+      console.log("end fetchdata")
+    }
+
+    //haetaan cellien data kerran, kun komponentti ladataan
+    if (Date.now() - previousFetch > CELL_UPDATE_INTERVAL && !isFetchingData) {
+      fetchData();
+    }
+
+    //haetaan cellien data minuutin välein
+    const interval = setInterval(() => fetchData(), CELL_UPDATE_INTERVAL)
+    return () => { clearInterval(interval) }
   }, [])
 
   // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
