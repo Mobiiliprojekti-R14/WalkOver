@@ -14,8 +14,10 @@ type CellUserData = {
   firstColor?: string,
   secondName?: string,
   secondSteps?: number,
+  secondColor?: string,
   thirdName?: string,
-  thirdSteps?: number
+  thirdSteps?: number,
+  thirdColor?: string
 }
 
 /*
@@ -47,7 +49,7 @@ const getCellUserData = async (cellNumber: number) => {
 */
 
 const onMapLoad = async (): Promise<CellUserData[]> => {
-  /* (ajetaan kerran, kun kartta ladataan)
+  /* (ajetaan kerran, kun kartta ladataan, ja sen jälkeen minuutin välein)
   * Hakee tietokannasta jokaiselle cellille kolmen eniten kävelleen käyttäjän tiedot (displayname, askelmäärä, väri (vain #1:lle))
   * Palauttaa listan (result), jossa on yksi elementti (CellUserData-objekti) jokaista celliä kohden.
   * Jokainen CellUserData-objekti sisältää seuraavat tiedot cellistä:
@@ -73,9 +75,11 @@ const onMapLoad = async (): Promise<CellUserData[]> => {
 
       let secondName: string | undefined = undefined
       let secondSteps: number | undefined = undefined
+      let secondColor: string | undefined = undefined
 
       let thirdName: string | undefined = undefined
       let thirdSteps: number | undefined = undefined
+      let thirdColor: string | undefined = undefined
 
       querySnap.forEach((doc) => {
         if (!firstName && !firstSteps && !firstColor) {
@@ -84,13 +88,15 @@ const onMapLoad = async (): Promise<CellUserData[]> => {
           firstSteps = doc.get(`${PREFIX}${i+1}`)
           firstColor = doc.get('userColor')
         }
-        else if (!secondName && !secondSteps) {
+        else if (!secondName && !secondSteps && !secondColor) {
           secondName = doc.get('displayName')
           secondSteps = doc.get(`${PREFIX}${i+1}`)
+          secondColor = doc.get('userColor')
         }
-        else if (!thirdName && !thirdSteps) {
+        else if (!thirdName && !thirdSteps && !thirdColor) {
           thirdName = doc.get('displayName')
           thirdSteps = doc.get(`${PREFIX}${i+1}`)
+          thirdColor = doc.get('userColor')
         }
       })
 
@@ -101,8 +107,10 @@ const onMapLoad = async (): Promise<CellUserData[]> => {
         firstColor: firstColor,
         secondName: secondName,
         secondSteps: secondSteps,
+        secondColor: secondColor,
         thirdName: thirdName,
-        thirdSteps: thirdSteps
+        thirdSteps: thirdSteps,
+        thirdColor: thirdColor
       })
     }
 

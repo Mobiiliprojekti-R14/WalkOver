@@ -3,6 +3,7 @@ import React from 'react'
 import { CellUserData } from '../src/utils/fetchCellData'
 import { IconButton } from 'react-native-paper'
 import { BarChart, barDataItem } from 'react-native-gifted-charts'
+import { useAuth } from '../src/auth/AuthProvider'
 
 type Props = {
   modalVisible: boolean
@@ -24,6 +25,42 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
     return;
   }
 
+  const { profile } = useAuth()
+
+  const barchartData: barDataItem[] = []
+  if (cellUserData[debugCell - 1].firstName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].firstSteps,
+      label: cellUserData[debugCell - 1].firstName,
+      frontColor: cellUserData[debugCell - 1].firstColor
+    })
+  }
+  if (cellUserData[debugCell - 1].secondName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].secondSteps,
+      label: cellUserData[debugCell - 1].secondName,
+      frontColor: cellUserData[debugCell - 1].secondColor
+    })
+  }
+  if (cellUserData[debugCell - 1].thirdName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].thirdSteps,
+      label: cellUserData[debugCell - 1].thirdName,
+      frontColor: cellUserData[debugCell - 1].thirdColor
+    })
+  }
+  if (profile && profile.cells && profile.displayName && profile.userColor
+    && (profile.displayName != cellUserData[debugCell - 1].firstName)
+    && (profile.displayName != cellUserData[debugCell - 1].secondName)
+    && (profile.displayName != cellUserData[debugCell - 1].thirdName)
+  ) {
+    barchartData.push({
+      value: profile.cells[debugCell - 1],
+      label: 'Me',
+      frontColor: profile.userColor
+    })
+  }
+
   return (
     <Modal
       animationType='slide'
@@ -42,32 +79,52 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
               setModalVisible(false)
             }}
           />
-          <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
-          <View>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
             <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
+              {cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
             </Text>
-            <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].secondName ? `2nd place: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} steps)` : ""}
-              {/*cellUserData ? `2nd place: ${cellUserData[debugCell - 1]?.secondName} (${cellUserData[debugCell - 1]?.secondSteps} steps)` : ""*/}
-            </Text>
-            <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].thirdName ? `3rd place: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} steps)` : ""}
-              {/*cellUserData ? `3rd place: ${cellUserData[debugCell - 1]?.thirdName} (${cellUserData[debugCell - 1]?.thirdSteps} steps)` : ""*/}
-            </Text>
-            <Text>tähän kaavio? (esim pylväsdiagrammi jossa top 3 askeleet ja käyttäjän askeleet [max 4 pylvästä]?)</Text>
-            {/* pylväiden värit userColorista? */}
-            <View>
+            {cellUserData[debugCell - 1].secondName && (
+              <Text>
+                2nd place: {cellUserData[debugCell - 1].secondName} ({cellUserData[debugCell - 1].secondSteps} steps)
+              </Text>
+            )}
+            {cellUserData[debugCell - 1].thirdName && (
+              <Text>
+                3rd place: {cellUserData[debugCell - 1].thirdName} ({cellUserData[debugCell - 1].thirdSteps} steps)
+              </Text>
+            )}
+            {
+              (cellUserData[debugCell - 1].firstName &&
+                profile?.displayName != cellUserData[debugCell - 1].firstName &&
+                profile?.displayName != cellUserData[debugCell - 1].secondName &&
+                profile?.displayName != cellUserData[debugCell - 1].thirdName
+              ) && (
+                <Text>
+                  My steps in cell: {(profile && profile.cells) ? profile.cells[debugCell - 1] : 0}
+                </Text>
+              )
+            }
+          </View>
+          <Text>Muuta pylväiden labelit numeroiksi!</Text>
+          <View style={{ /* padding: 16, margin: 16, */ margin: 24 }}>
+            {cellUserData[debugCell - 1].firstName && (
               <BarChart
-                data={
-                  [
-                    { value: 1, label: "test", frontColor: '#f00' },
-                    { value: 3, label: "test 2", frontColor: '#0f0' },
-                    { value: 4, label: "test 3", frontColor: '#00f' }
-                  ]
-                }
-              />
-            </View>
+                data={barchartData}
+                noOfSections={4}
+                initialSpacing={20}
+                width={250}
+                spacing={30}
+                endSpacing={0}
+                xAxisTextNumberOfLines={2}
+                rotateLabel
+                labelsExtraHeight={16}
+                labelsDistanceFromXaxis={16}
+                isAnimated
+                disablePress
+              />)}
           </View>
         </View>
       </View>
@@ -79,14 +136,14 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    //alignItems: 'center',
   },
   modalView: {
-    margin: 20,
+    margin: 15,
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+    //alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
