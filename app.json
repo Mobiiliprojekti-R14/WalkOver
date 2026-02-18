@@ -39,7 +39,7 @@
           "apiKey": "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
         }
       },
-      "package": "com.villek.walkover"
+      "package": "com.jotaki.walkover"
     },
     "web": {
       "favicon": "./assets/favicon.png"
