@@ -70,7 +70,7 @@ export function AccountMenuScreen({ navigation }: Props) {
                     ) : null}
                 </View>
 
-                <MenuItem title="Profiili" onPress={() => navigation.navigate("Profile")} />
+
                 <MenuItem title="Asetukset" onPress={() => navigation.navigate("Settings")} />
 
 

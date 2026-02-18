@@ -5,6 +5,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from "../src/auth/AuthProvider";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConquestDonutCard } from "../components/ConquestDonutCard";
+
 import { doc, updateDoc } from "firebase/firestore"
 import { db, COLLECTIONS } from "../firebase/Config"
 
@@ -74,7 +76,7 @@ export function ProfileScreen() {
                 <Text style={styles.welcomeText}> oma profiilisivu </Text>
                 <Card style={styles.card}>
                     <Card.Content>
-                        <Text style={styles.sectionTitle}>Aktiivisuutesi:{'\n'}{'\n'}DIAGRAMMI 1{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+                        <Text style={styles.sectionTitle}>Aktiivisuutesi:{'\n'}{'\n'}DIAGRAMMI 1{'\n'}{'\n'}</Text>
                         <Text style={styles.text}>Aktiivisuutesi tällä hetkellä:</Text>
                         <View style={styles.statsRow}>
                             <View style={styles.stepsCounter}>
@@ -88,8 +90,9 @@ export function ProfileScreen() {
                                 <Text style={styles.statLabel}>Askeleet yhteensä</Text>
                             </View>
                         </View>
-                        <Text style={styles.sectionTitle}>DIAGRAMMI 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+                        <Text style={styles.sectionTitle}>DIAGRAMMI 2 {'\n'}{'\n'}</Text>
 
+                        <ConquestDonutCard />
 
                         <View style={styles.generatorSection}>
                             <View style={styles.controlsColumn}>
@@ -127,6 +130,8 @@ export function ProfileScreen() {
                         </View>
                     </Card.Content>
                 </Card>
+
+
             </ScrollView>
         </View>
     )
