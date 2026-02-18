@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from "react-native"
 import { PieChart } from "react-native-gifted-charts"
 
 import { useAuth } from "../src/auth/AuthProvider"
-import { useAllUserSteps } from "../hooks/useAllUsersSteps"
+import { useAllUserSteps } from "../hooks/useAllUserSteps"
 import { calculateConquestStats } from "../src/utils/calculateConquestStats"
 
 /**
