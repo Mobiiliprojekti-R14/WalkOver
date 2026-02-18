@@ -19,8 +19,7 @@ import { AvatarButton } from "../../components/AvatarButton"
 
 
 // Valikkosivut
-import { DummyTestScreen } from "../../screens/DummyTestScreen"
-import { Testisivu } from "../../screens/Testisivu"
+
 
 
 // Käyttäjän sivut
@@ -36,8 +35,6 @@ export type AppStackParamList = {
     AccountMenu: undefined
 
     // Valikkosivut
-    Dummy: undefined
-    Testisivu: undefined
     Profiili: undefined
     Tulostaulu: undefined
     Peliohje: undefined
@@ -101,15 +98,13 @@ export function AppStackNavigator() {
                     headerShown: false,
                     presentation: "modal",
                     animation: "fade",
-                    
+
                 }}
             />
 
 
 
             {/* Menu-sivut */}
-            <Stack.Screen name="Dummy" component={DummyTestScreen} options={{ title: "DummyTesti sivu" }} />
-            <Stack.Screen name="Testisivu" component={Testisivu} options={{ title: "Testisivu2" }} />
             <Stack.Screen name="Profiili" component={ProfileScreen} options={{ title: "Profiili" }} />
             <Stack.Screen name="Tulostaulu" component={LeaderboardScreen} options={{ title: "Tulostaulu" }} />
             <Stack.Screen name="Peliohje" component={InstructionsScreen} options={{ title: "Peliohje" }} />
