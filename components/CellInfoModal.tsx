@@ -15,15 +15,44 @@ type Props = {
 
 export default function CellInfoModal({modalVisible, setModalVisible, cellUserData, debugCell}: Props) {
 
-  if (debugCell < 1) return;
+  const errorModal = (
+    <Modal
+      animationType='slide'
+      visible={modalVisible}
+      transparent={true}
+      onRequestClose={() => {
+        setModalVisible(false)
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <IconButton
+            style={{ alignSelf: 'flex-end' }}
+            icon='close'
+            onPress={() => {
+              setModalVisible(false)
+            }}
+          />
+          <View style={{ paddingHorizontal: 32, marginBottom: 16 }}>
+            <Text style={{ textAlign: 'center' }}>Alueen tietoja ladattaessa tapahtui virhe, yritä myöhemmin uudelleen</Text>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  if (debugCell < 1) {
+    //console.log("CellInfoModal: debugCell < 1")
+    return errorModal;
+  }
 
   if (!cellUserData) {
-    console.log("CellInfoModal: cellUserData is undefined")
-    return;
+    //console.log("CellInfoModal: cellUserData is undefined")
+    return errorModal;
   }
   if (cellUserData.length < debugCell) {
-    console.log("CellInfoModal: cellUserData has too few elements")
-    return;
+    //console.log("CellInfoModal: cellUserData has too few elements")
+    return errorModal;
   }
 
   const { profile } = useAuth()
