@@ -4,6 +4,7 @@ import { CellUserData } from '../src/utils/fetchCellData'
 import { IconButton } from 'react-native-paper'
 import { BarChart, barDataItem } from 'react-native-gifted-charts'
 import { useAuth } from '../src/auth/AuthProvider'
+import { MaterialIcons } from '@expo/vector-icons'
 
 type Props = {
   modalVisible: boolean
@@ -31,21 +32,21 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
   if (cellUserData[debugCell - 1].firstName) {
     barchartData.push({
       value: cellUserData[debugCell - 1].firstSteps,
-      label: cellUserData[debugCell - 1].firstName,
+      label: "#1",
       frontColor: cellUserData[debugCell - 1].firstColor
     })
   }
   if (cellUserData[debugCell - 1].secondName) {
     barchartData.push({
       value: cellUserData[debugCell - 1].secondSteps,
-      label: cellUserData[debugCell - 1].secondName,
+      label: "#2",
       frontColor: cellUserData[debugCell - 1].secondColor
     })
   }
   if (cellUserData[debugCell - 1].thirdName) {
     barchartData.push({
       value: cellUserData[debugCell - 1].thirdSteps,
-      label: cellUserData[debugCell - 1].thirdName,
+      label: "#3",
       frontColor: cellUserData[debugCell - 1].thirdColor
     })
   }
@@ -56,7 +57,7 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
   ) {
     barchartData.push({
       value: profile.cells[debugCell - 1],
-      label: 'Me',
+      label: 'Minä',
       frontColor: profile.userColor
     })
   }
@@ -80,22 +81,31 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
             }}
           />
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Alue #{debugCell}</Text>
           </View>
           <View style={{ alignItems: 'center' }}>
-            <Text>
-              {cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
-            </Text>
+            {cellUserData[debugCell - 1].firstName ? (
+              <Text>
+                <MaterialIcons name="emoji-events" size={25} color="#ebb00e" />
+                {`#1: ${cellUserData[debugCell - 1].firstName} (${cellUserData[debugCell - 1].firstSteps} askelta)`}
+              </Text>
+            ) : (
+              <Text>Aluetta ei ole vielä valloitettu</Text>
+            )}
             {cellUserData[debugCell - 1].secondName && (
               <Text>
-                2nd place: {cellUserData[debugCell - 1].secondName} ({cellUserData[debugCell - 1].secondSteps} steps)
+                <MaterialIcons name="emoji-events" size={25} color="#b9b1b1" />
+                {`#2: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} askelta)`}
               </Text>
             )}
             {cellUserData[debugCell - 1].thirdName && (
               <Text>
-                3rd place: {cellUserData[debugCell - 1].thirdName} ({cellUserData[debugCell - 1].thirdSteps} steps)
+                <MaterialIcons name="emoji-events" size={25} color="#c4874a" />
+                {`#3: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} askelta)`}
               </Text>
             )}
+          </View>
+          <View style={{alignItems: 'center', marginTop: 16}}>
             {
               (cellUserData[debugCell - 1].firstName &&
                 profile?.displayName != cellUserData[debugCell - 1].firstName &&
@@ -103,12 +113,11 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
                 profile?.displayName != cellUserData[debugCell - 1].thirdName
               ) && (
                 <Text>
-                  My steps in cell: {(profile && profile.cells) ? profile.cells[debugCell - 1] : 0}
+                  Omat askeleet alueella: {(profile && profile.cells) ? profile.cells[debugCell - 1] : 0}
                 </Text>
               )
             }
           </View>
-          <Text>Muuta pylväiden labelit numeroiksi!</Text>
           <View style={{ /* padding: 16, margin: 16, */ margin: 24 }}>
             {cellUserData[debugCell - 1].firstName && (
               <BarChart
@@ -118,10 +127,10 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
                 width={250}
                 spacing={30}
                 endSpacing={0}
-                xAxisTextNumberOfLines={2}
-                rotateLabel
-                labelsExtraHeight={16}
-                labelsDistanceFromXaxis={16}
+                //xAxisTextNumberOfLines={2}
+                //rotateLabel
+                //labelsExtraHeight={16}
+                //labelsDistanceFromXaxis={16}
                 isAnimated
                 disablePress
               />)}

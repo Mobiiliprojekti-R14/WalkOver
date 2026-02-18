@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent, MapPolygon } from 'react-native-maps'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
@@ -498,7 +498,7 @@ export default function MapViewWithLocation() {
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ margin: 8 }}>Fetching location...</Text>
+      <Text style={{ margin: 8 }}>Haetaan sijaintia...</Text>
       <ActivityIndicator />
     </View>
   )
@@ -762,7 +762,7 @@ export default function MapViewWithLocation() {
 
       {(isFetchingData || !cellUserData)/* || true*/ &&
         <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
-          <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
+          <Text style={{ paddingBottom: 8 }}>Haetaan uusin data alueista...</Text>
           <ActivityIndicator />
         </View>
       }
@@ -787,7 +787,7 @@ export default function MapViewWithLocation() {
         onPress={() => setIsPlaying(prev => !prev)}
       >
         <Text style={styles.playText}>
-          {isPlaying ? "Stop playing" : "Start playing"}
+          {isPlaying ? "Lopeta pelaaminen" : "Aloita pelaaminen"}
         </Text>
       </TouchableOpacity>
 
