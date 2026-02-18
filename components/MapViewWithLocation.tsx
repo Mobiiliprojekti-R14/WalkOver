@@ -10,6 +10,7 @@ import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
 import { setOpacity } from '../src/utils/colorStrings'
 import CellInfoModal from './CellInfoModal'
 import StepsInCell from './StepsInCell'
+import { useNavigation } from '@react-navigation/native'
 
 type CellGeoData = {
   country: string,
@@ -298,6 +299,23 @@ export default function MapViewWithLocation() {
 
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [previousFetch, setPreviousFetch] = useState(0)
+
+  // https://github.com/react-native-maps/react-native-maps/issues/5595#issuecomment-3028130629
+  // polygonien key-proppia muutetaan aina, kun navigoidaan
+  // mapviewiin (focus) --> muuttunut key prop pakottaa polygonin
+  // mounttaamaan uudestaan. randomKeyn voi lisätä joko polygonin
+  // tai mapviewin key proppiin, molemmat vaikuttaisivat toimivan
+  const [randomKey, setRandomKey] = useState(0)
+
+  const navigation = useNavigation()
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("focus")
+      setRandomKey(Math.random())
+    })
+    return unsubscribe
+  }, [navigation])
 
   /*
   const polygons = cells4.map((cell, index) => {
@@ -673,6 +691,7 @@ export default function MapViewWithLocation() {
   return (
     <View style={styles.container}>
       <MapView
+        //key={`mapview-${randomKey}`}
         ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
@@ -699,7 +718,7 @@ export default function MapViewWithLocation() {
         {
           cells4.map((cell, index) => {
             return <Polygon
-              key={`polygon${index}-${cell.name}-${Math.random()}`}
+              key={`polygon${index}-${cell.name}-${randomKey}`}
               coordinates={cell.coords}
               //fillColor={cellColors[index % 4]}
               //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
