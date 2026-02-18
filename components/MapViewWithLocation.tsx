@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent } from 'react-native-maps'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent, MapPolygon } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
@@ -9,7 +9,6 @@ import cells4 from '../cells4.json'
 import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
 import { setOpacity } from '../src/utils/colorStrings'
 import CellInfoModal from './CellInfoModal'
-import { IconButton } from 'react-native-paper'
 import StepsInCell from './StepsInCell'
 
 type CellGeoData = {
@@ -284,24 +283,33 @@ export default function MapViewWithLocation() {
   // Kartan ref (animateToRegion varten)
   const mapRef = useRef<MapView>(null)
 
-  // marker ref (väliaikainen testi)
-  //const markerRef = useRef<MapMarker>(null)
-
   //cell info modal
   const [modalVisible, setModalVisible] = useState(false)
 
   const [cellNumber, setCellNumber] = useState<number>(-1)
 
   //tilamuuttujat debuggaamiseen (voi poistaa myöhemmästä toteutuksesta)
-  const [debugCoords, setDebugCoords] = useState<LatLng>()
+  //const [debugCoords, setDebugCoords] = useState<LatLng>()
   const [debugCell, setDebugCell] = useState<number>(-1)
-  const [debugText, setDebugText] = useState<string>("")
+  //const [debugText, setDebugText] = useState<string>("")
 
   //tähän tallennetaan lista objekteista, joissa on cellin alueella liikkuneiden tiedot (haetaan tietokannasta)
-  const [cellUserData, setCellUserData] = useState<CellUserData[] | undefined>([])
+  const [cellUserData, setCellUserData] = useState<CellUserData[]>([])
 
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [previousFetch, setPreviousFetch] = useState(0)
+
+  /*
+  const polygons = cells4.map((cell, index) => {
+    return <Polygon
+      key={`polygon${index}-${cell.name}-${Math.random()}`}
+      coordinates={cell.coords}
+      //fillColor={cellColors[index % 4]}
+      //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
+      fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "70", "#0000") : '#0000'}
+    />
+  })
+  */
 
   useEffect(() => {
     (async () => {
@@ -313,7 +321,8 @@ export default function MapViewWithLocation() {
       setPreviousFetch(Date.now())
       setIsFetchingData(false)
     })()
-  }, [cellUserData])
+  }, [])
+
   // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
   useEffect(() => {
     if (!isPlaying) {
@@ -645,8 +654,8 @@ export default function MapViewWithLocation() {
 
   const handleMapPress = /*async*/ (e: MapPressEvent | PoiClickEvent) => {
     const onPressCoords = e.nativeEvent.coordinate
-    setDebugCoords(onPressCoords)
-    setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
+    //setDebugCoords(onPressCoords)
+    //setDebugText("Latitude: " + String(onPressCoords.latitude) + ", Longitude: " + String(onPressCoords.longitude))
 
     //const cellNumber = findCell(onPressCoords)
     const cellNumber = findCell4(onPressCoords, cells4)
@@ -686,14 +695,15 @@ export default function MapViewWithLocation() {
           />
         )}
 
+        {/* polygons */}
         {
           cells4.map((cell, index) => {
             return <Polygon
-              key={index}
+              key={`polygon${index}-${cell.name}-${Math.random()}`}
               coordinates={cell.coords}
               //fillColor={cellColors[index % 4]}
               //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
-              fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "40", "#0000") : '#0000'}
+              fillColor={cellUserData && cellUserData[index] && cellUserData[index].firstColor ? setOpacity(cellUserData[index].firstColor, "70", "#0000") : '#0000'}
             />
           })
         }
@@ -731,11 +741,11 @@ export default function MapViewWithLocation() {
 
       </MapView>
 
-      {isFetchingData || !cellUserData/* || true*/ ?
+      {(isFetchingData || !cellUserData)/* || true*/ &&
         <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
           <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
           <ActivityIndicator />
-        </View> : null
+        </View>
       }
 
       <CellInfoModal
@@ -795,21 +805,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },*/
   modalText: {
     marginBottom: 15,

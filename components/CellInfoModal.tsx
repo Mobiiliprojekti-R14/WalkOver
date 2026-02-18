@@ -8,7 +8,7 @@ import { BarChart, barDataItem } from 'react-native-gifted-charts'
 type Props = {
   modalVisible: boolean
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
-  cellUserData: CellUserData[] | undefined
+  cellUserData: CellUserData[]
   debugCell: number
 }
 
