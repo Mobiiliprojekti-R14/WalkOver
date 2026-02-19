@@ -44,7 +44,7 @@
           "apiKey": ""
         }
       },
-      "package": ""
+      "package": "com.jotaki.walkover"
     },
     "web": {
       "favicon": "./assets/favicon.png"
