@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
-import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent, MapPolygon } from 'react-native-maps'
+import MapView, { Polygon, Polyline, LatLng, Region, MapPressEvent, PoiClickEvent } from 'react-native-maps'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
-import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
+import { CellUserData, onMapLoad2, cellUserDataFrom } from '../src/utils/fetchCellData'
 import { setOpacity } from '../src/utils/colorStrings'
 import CellInfoModal from './CellInfoModal'
 import StepsInCell from './StepsInCell'
+import { useNavigation } from '@react-navigation/native'
 
 type CellGeoData = {
   country: string,
@@ -299,6 +300,23 @@ export default function MapViewWithLocation() {
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [previousFetch, setPreviousFetch] = useState(0)
 
+  // https://github.com/react-native-maps/react-native-maps/issues/5595#issuecomment-3028130629
+  // polygonien key-proppia muutetaan aina, kun navigoidaan
+  // mapviewiin (focus) --> muuttunut key prop pakottaa polygonin
+  // mounttaamaan uudestaan. randomKeyn voi lisätä joko polygonin
+  // tai mapviewin key proppiin, molemmat vaikuttaisivat toimivan
+  const [randomKey, setRandomKey] = useState(0)
+
+  const navigation = useNavigation()
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("focus")
+      setRandomKey(Math.random())
+    })
+    return unsubscribe
+  }, [navigation])
+
   /*
   const polygons = cells4.map((cell, index) => {
     return <Polygon
@@ -312,15 +330,27 @@ export default function MapViewWithLocation() {
   */
 
   useEffect(() => {
-    (async () => {
-      if (isFetchingData) return; //estää usean samanaikaisen haun (toivottavasti... :D)
-      if (Date.now() - previousFetch < 60000) return; //rajoittaa sitä, kuinka usein cellien tiedot voidaan hakea (enintään kerran 60 sekunnissa)
+    const CELL_UPDATE_INTERVAL = 60000 //kuinka usein alueiden data päivitetään (millisekunteina)
+    const fetchData = async () => {
+      //console.log("start fetchdata")
       setIsFetchingData(true)
-      const cellDataList = await onMapLoad();
+      //const cellDataList = await onMapLoad();
+      const usersData = await onMapLoad2();
+      const cellDataList = cellUserDataFrom(usersData);
       setCellUserData(cellDataList)
       setPreviousFetch(Date.now())
       setIsFetchingData(false)
-    })()
+      //console.log("end fetchdata")
+    }
+
+    //haetaan cellien data kerran, kun komponentti ladataan
+    if (Date.now() - previousFetch > CELL_UPDATE_INTERVAL && !isFetchingData) {
+      fetchData();
+    }
+
+    //haetaan cellien data minuutin välein
+    const interval = setInterval(() => fetchData(), CELL_UPDATE_INTERVAL)
+    return () => { clearInterval(interval) }
   }, [])
 
   // Reitti tyhjennetään kun käyttäjä lopettaa pelaamisen
@@ -371,6 +401,10 @@ export default function MapViewWithLocation() {
       // Haetaan ensimmäinen sijainti kartan keskitystä varten
       const loc = await Location.getCurrentPositionAsync({})
       const { latitude, longitude } = loc.coords
+      const FGcellNumber = findCell4({ latitude, longitude }, cells4)
+            console.log("FG User before playing is in cell:", FGcellNumber)
+            setCellNumber(FGcellNumber)
+      
 
       // Asetetaan kartan aloitusalue
       setInitialRegion({
@@ -428,6 +462,8 @@ export default function MapViewWithLocation() {
             setRouteCoords((prev) => [...prev, { latitude, longitude }])
             const FGcellNumber = findCell4({ latitude, longitude }, cells4)
             console.log("FG User is in cell:", FGcellNumber)
+            setCellNumber(FGcellNumber)
+
           }
         )
         watchRef.current = sub
@@ -480,7 +516,7 @@ export default function MapViewWithLocation() {
   // Ei piirretä karttaa ennen initialRegionia
   if (!initialRegion) return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ margin: 8 }}>Fetching location...</Text>
+      <Text style={{ margin: 8 }}>Haetaan sijaintia...</Text>
       <ActivityIndicator />
     </View>
   )
@@ -673,6 +709,7 @@ export default function MapViewWithLocation() {
   return (
     <View style={styles.container}>
       <MapView
+        //key={`mapview-${randomKey}`}
         ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
@@ -699,7 +736,7 @@ export default function MapViewWithLocation() {
         {
           cells4.map((cell, index) => {
             return <Polygon
-              key={`polygon${index}-${cell.name}-${Math.random()}`}
+              key={`polygon${index}-${cell.name}-${randomKey}`}
               coordinates={cell.coords}
               //fillColor={cellColors[index % 4]}
               //fillColor={cellUserData ? cellUserData[index]?.firstColor ? setOpacity(cellUserData[index]?.firstColor, "40") : '#0000' : '#0000'}
@@ -743,7 +780,7 @@ export default function MapViewWithLocation() {
 
       {(isFetchingData || !cellUserData)/* || true*/ &&
         <View style={{ position: 'absolute', backgroundColor: 'rgba(255, 255, 255, 0.6)', margin: 8, padding: 16 }}>
-          <Text style={{ paddingBottom: 8 }}>Loading latest cell data...</Text>
+          <Text style={{ paddingBottom: 8 }}>Haetaan uusin data alueista...</Text>
           <ActivityIndicator />
         </View>
       }
@@ -768,7 +805,7 @@ export default function MapViewWithLocation() {
         onPress={() => setIsPlaying(prev => !prev)}
       >
         <Text style={styles.playText}>
-          {isPlaying ? "Stop playing" : "Start playing"}
+          {isPlaying ? "Lopeta pelaaminen" : "Aloita pelaaminen"}
         </Text>
       </TouchableOpacity>
 

@@ -11,7 +11,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native"
 export function SplashScreen() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Liikuntapeli</Text>
+            <Text style={styles.title}>WalkOver</Text>
             <ActivityIndicator />
             <Text style={styles.subtitle}>Ladataan...</Text>
         </View>

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native"
-import { Card, Button, Checkbox, Avatar } from 'react-native-paper';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useAuth } from "../src/auth/AuthProvider";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card, Button, Checkbox, Avatar } from 'react-native-paper'
+import { MaterialIcons } from '@expo/vector-icons'
+import { useAuth } from "../src/auth/AuthProvider"
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { BarChart } from "react-native-gifted-charts"
+
+import { ConquestDonutCard } from "../components/ConquestDonutCard";
 
 import { doc, updateDoc } from "firebase/firestore"
 import { db, COLLECTIONS } from "../firebase/Config"
@@ -74,8 +77,33 @@ export function ProfileScreen() {
                 <Text style={styles.welcomeText}> oma profiilisivu </Text>
                 <Card style={styles.card}>
                     <Card.Content>
-                        <Text style={styles.sectionTitle}>Aktiivisuutesi:{'\n'}{'\n'}DIAGRAMMI 1{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
-                        <Text style={styles.text}>Aktiivisuutesi tällä hetkellä:</Text>
+                        <Text style={styles.sectionTitle}>Aktiivisuutesi</Text>
+
+                        <Text style={styles.text}>Askeleesi alueittain:</Text>
+                        <View style={styles.chartContainer}>
+                            <BarChart
+                                barWidth={9}
+                                noOfSections={5}
+                                barBorderRadius={4}
+                                data={cells.map((value, index) => ({
+                                    value: Number(value) || 0,
+                                    label: (index + 1).toString(),
+                                    frontColor: accentHex || '#2976be',
+                                }))}
+                                yAxisThickness={0}
+                                xAxisThickness={0}
+                                spacing={6.5}
+                                isAnimated
+                                xAxisLabelTextStyle={styles.xAxisText}
+                                yAxisTextStyle={styles.yAxisText}
+
+                                maxValue={Math.max(...cells, 100) + 30}
+                            />
+                            <Text style={styles.infoLabel}>Voit tarkistella alueiden sijaintia kartalta</Text>
+                            <Text style={styles.xLabelInfo}>Alueet 1-16</Text>
+
+                        </View>
+                        <Text style={styles.text}>Aktiivisuutesi yhteensä:</Text>
                         <View style={styles.statsRow}>
                             <View style={styles.stepsCounter}>
                                 <MaterialIcons
@@ -88,8 +116,10 @@ export function ProfileScreen() {
                                 <Text style={styles.statLabel}>Askeleet yhteensä</Text>
                             </View>
                         </View>
-                        <Text style={styles.sectionTitle}>DIAGRAMMI 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text>
+                        <Text style={styles.text}>Vallatut alueesi:</Text>
 
+
+                        <ConquestDonutCard />
 
                         <View style={styles.generatorSection}>
                             <View style={styles.controlsColumn}>
@@ -127,6 +157,8 @@ export function ProfileScreen() {
                         </View>
                     </Card.Content>
                 </Card>
+
+
             </ScrollView>
         </View>
     )
@@ -178,17 +210,47 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '500',
         marginTop: 10,
-        marginBottom: 5,
+        marginBottom: 20,
         textAlign: 'center'
+    },
+    chartContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 20,
+    },
+    infoLabel: {
+        fontSize: 12,
+        color: '#55555593',
+        marginTop: 5,
+        textAlign: 'center',
+    },
+    xLabelInfo: {
+        fontSize: 14,
+        color: '#555555',
+        marginTop: 5,
+        textAlign: 'center',
+        fontWeight: 500,
+        marginBottom: 30
+    },
+    xAxisText: {
+        fontSize: 11,
+        color: '#555555',
+        textAlign: 'center',
+        fontWeight: 600,
+    },
+    yAxisText: {
+        fontSize: 10,
+        color: '#999',
     },
     text: {
         fontSize: 16,
         lineHeight: 24,
         textAlign: 'center',
         marginBottom: 10,
+        fontWeight: '400',
     },
     statsRow: {
         alignItems: 'center',
@@ -199,6 +261,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         shadowColor: '#000',
         elevation: 5,
+        marginBottom: 20
     },
     stepsCounter: {
         flex: 1,
