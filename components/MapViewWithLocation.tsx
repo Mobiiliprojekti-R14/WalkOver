@@ -371,6 +371,10 @@ export default function MapViewWithLocation() {
       // Haetaan ensimmäinen sijainti kartan keskitystä varten
       const loc = await Location.getCurrentPositionAsync({})
       const { latitude, longitude } = loc.coords
+      const FGcellNumber = findCell4({ latitude, longitude }, cells4)
+            console.log("FG User before playing is in cell:", FGcellNumber)
+            setCellNumber(FGcellNumber)
+      
 
       // Asetetaan kartan aloitusalue
       setInitialRegion({
@@ -428,6 +432,8 @@ export default function MapViewWithLocation() {
             setRouteCoords((prev) => [...prev, { latitude, longitude }])
             const FGcellNumber = findCell4({ latitude, longitude }, cells4)
             console.log("FG User is in cell:", FGcellNumber)
+            setCellNumber(FGcellNumber)
+
           }
         )
         watchRef.current = sub

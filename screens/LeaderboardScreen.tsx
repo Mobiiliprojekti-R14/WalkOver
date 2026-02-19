@@ -6,28 +6,30 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAllUserSteps } from "../hooks/useAllUserSteps";
 import { PieChart } from "react-native-gifted-charts"
 import { calculateTop3 } from "../src/utils/calculateTop3";
-import { useAuth } from "../src/auth/AuthProvider";
+
 
 
 
 export function LeaderboardScreen() {
-    const { profile } = useAuth()
+    
     const { users, loading } = useAllUserSteps()
 
 
 
 
-    if (loading) {
-        return <Text>Ladataan...</Text>;
-    }
+    // Boolean, on true jos lataus on valmis, users ei ole null ja käyttäjiä on vähintään 1
+    const hasUsers = !loading && users && users.length > 0;
+    // Jos käyttäjiä on -> laske top3, muuten anna tyhjä lista
+    const top3 = hasUsers ? calculateTop3(users) : [];
+    // Jos käyttäjiä on -> laske kuinka monta ouluX-fieldiä käyttäjällä on, jos ei löydy niin palauta 0 fieldiä
+    const totalAreas = hasUsers ? Object.keys(users[0]).filter(k => k.startsWith("oulu")).length : 0;
 
-    const top3 = calculateTop3(users)
-    if (!users || users.length === 0) { return <Text>Ei käyttäjiä</Text>; }
-    const totalAreas = Object.keys(users[0]).filter(k => k.startsWith("oulu")).length;
+    // Top1-3 käyttäjät hallittujen alueiden määrien mukaan
     const top1Areas = top3[0]?.controlledAreas ?? 0;
     const top2Areas = top3[1]?.controlledAreas ?? 0;
     const top3Areas = top3[2]?.controlledAreas ?? 0;
 
+    // Laskutoimitus, jotta saadaan piirakkadiagrammiin top3 sekä muut alueet
     const usedAreas = top1Areas + top2Areas + top3Areas;
     const otherAreas = Math.max(totalAreas - usedAreas, 0);
 
