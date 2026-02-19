@@ -6,30 +6,34 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAllUserSteps } from "../hooks/useAllUserSteps";
 import { PieChart } from "react-native-gifted-charts"
 import { calculateTop3 } from "../src/utils/calculateTop3";
-import { useAuth } from "../src/auth/AuthProvider";
+
 
 
 
 export function LeaderboardScreen() {
-    const { profile } = useAuth()
+    
     const { users, loading } = useAllUserSteps()
 
 
 
 
-    if (loading) {
-        return <Text>Ladataan...</Text>;
-    }
+    // Boolean, on true jos lataus on valmis, users ei ole null ja käyttäjiä on vähintään 1
+    const hasUsers = !loading && users && users.length > 0;
+    // Jos käyttäjiä on -> laske top3, muuten anna tyhjä lista
+    const top3 = hasUsers ? calculateTop3(users) : [];
+    // Jos käyttäjiä on -> laske kuinka monta ouluX-fieldiä käyttäjällä on, jos ei löydy niin palauta 0 fieldiä
+    const totalAreas = hasUsers ? Object.keys(users[0]).filter(k => k.startsWith("oulu")).length : 0;
 
-    const top3 = calculateTop3(users)
-    if (!users || users.length === 0) { return <Text>Ei käyttäjiä</Text>; }
-    const totalAreas = Object.keys(users[0]).filter(k => k.startsWith("oulu")).length;
+    // Top1-3 käyttäjät hallittujen alueiden määrien mukaan
     const top1Areas = top3[0]?.controlledAreas ?? 0;
     const top2Areas = top3[1]?.controlledAreas ?? 0;
     const top3Areas = top3[2]?.controlledAreas ?? 0;
 
+    // Laskutoimitus, jotta saadaan piirakkadiagrammiin top3 sekä muut alueet
     const usedAreas = top1Areas + top2Areas + top3Areas;
     const otherAreas = Math.max(totalAreas - usedAreas, 0);
+    
+    const trophyColors = ["#ebb00e", "#b9b1b1", "#c4874a"]
 
 
 
@@ -39,28 +43,32 @@ export function LeaderboardScreen() {
             color: top3[0]?.userColor ?? "#ffbf00",
             // text: `${top1Areas}`,
             text: "#1",
-            label: top3[0]?.displayName || "Top 1"
+            label: top3[0]?.displayName || "Top 1",
+            fontWeight: 'bold'
         },
         {
             value: top2Areas,
             color: top3[1]?.userColor ?? "#c0c0c0",
             // text: `${top2Areas}`,
             text: "#2",
-            label: top3[1]?.displayName || "Top 2"
+            label: top3[1]?.displayName || "Top 2",
+            fontWeight: 'bold'
         },
         {
             value: top3Areas,
             color: top3[2]?.userColor ?? "#CD7F32",
             // text: `${top3Areas}`,
             text: "#3",
-            label: top3[2]?.displayName || "Top 3"
+            label: top3[2]?.displayName || "Top 3",
+            fontWeight: 'bold'
         },
         {
             value: otherAreas,
-            color: '#6f6f6f',
+            color: '#6f6f6fb4',
             // text: `${otherAreas}`,
             text: "Loput alueet",
-            label: "Muut"
+            label: "Muut",
+            fontWeight: 'bold'
         }
     ];
 
@@ -87,11 +95,14 @@ export function LeaderboardScreen() {
                 ]}
             >
                 <Text style={styles.welcomeText}>Hall Of Fame</Text>
+                <Text style={styles.tipText}>Tarkistele pelin tilastoja</Text>
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text style={styles.sectionTitle}>Pelin TOP 3:</Text>
                         {top3.map((u, i) => (
-                            <Text key={i}>{i + 1}. {u.displayName} – {u.controlledAreas} aluetta </Text>
+                            <Text key={i}>
+                                <MaterialIcons name="emoji-events" size={25} color={trophyColors[i]} />#
+                                {i + 1}: {u.displayName} – {u.controlledAreas} aluetta </Text>
                         ))}
                         <Text>{'\n'}</Text>
                         <PieChart
@@ -100,10 +111,9 @@ export function LeaderboardScreen() {
                             textColor="white"
                             radius={120}
                             textSize={14}
+                            labelsPosition="outward"
                         />
 
-
-                        {/* <Text style={styles.sectionTitle}>Diagrammi 2 {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}</Text> */}
                     </Card.Content>
                 </Card>
             </ScrollView>
@@ -142,22 +152,29 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         fontWeight: 'bold',
-        fontSize: 24,
-        marginBottom: 50,
+        fontSize: 23,
+        marginBottom: 10,
         marginTop: 20,
+        textAlign: 'center'
+    },
+    tipText: {
+        fontSize: 18,
+        marginBottom: 50,
         textAlign: 'center'
     },
     card: {
         width: '90%',
         elevation: 4,
         padding: 10,
+        textAlign: 'center',
+        alignItems: 'center'
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '500',
         marginTop: 10,
-        marginBottom: 5,
-        textAlign: 'center'
+        marginBottom: 20,
+        textAlign: 'center',
     },
     text: {
         fontSize: 16,

@@ -75,7 +75,7 @@ export default function PedometerComponent({ cellNumber }: { cellNumber: number 
   return (
     <View style={styles.container}>
       {/*<Text>Pedometer available: {isPedometerAvailable}</Text>*/}
-      <Text>Steps counted now: {currentSteps}</Text>
+      <Text>Askeleet: {currentSteps}</Text>
     </View>
   );
 }

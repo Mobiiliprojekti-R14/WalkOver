@@ -3,6 +3,8 @@ import React from 'react'
 import { CellUserData } from '../src/utils/fetchCellData'
 import { IconButton } from 'react-native-paper'
 import { BarChart, barDataItem } from 'react-native-gifted-charts'
+import { useAuth } from '../src/auth/AuthProvider'
+import { MaterialIcons } from '@expo/vector-icons'
 
 
 type Props = {
@@ -14,15 +16,80 @@ type Props = {
 
 export default function CellInfoModal({ modalVisible, setModalVisible, cellUserData, debugCell }: Props) {
 
-  if (debugCell < 1) return;
+  const errorModal = (
+    <Modal
+      animationType='slide'
+      visible={modalVisible}
+      transparent={true}
+      onRequestClose={() => {
+        setModalVisible(false)
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <IconButton
+            style={{ alignSelf: 'flex-end' }}
+            icon='close'
+            onPress={() => {
+              setModalVisible(false)
+            }}
+          />
+          <View style={{ paddingHorizontal: 32, marginBottom: 64, marginTop: 32 }}>
+            <Text style={{ textAlign: 'center' }}>Alueen tietoja ladattaessa tapahtui virhe, yritä myöhemmin uudelleen</Text>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  if (debugCell < 1) {
+    //console.log("CellInfoModal: debugCell < 1")
+    return errorModal;
+  }
 
   if (!cellUserData) {
-    console.log("CellInfoModal: cellUserData is undefined")
-    return;
+    //console.log("CellInfoModal: cellUserData is undefined")
+    return errorModal;
   }
   if (cellUserData.length < debugCell) {
-    console.log("CellInfoModal: cellUserData has too few elements")
-    return;
+    //console.log("CellInfoModal: cellUserData has too few elements")
+    return errorModal;
+  }
+
+  const { profile } = useAuth()
+
+  const barchartData: barDataItem[] = []
+  if (cellUserData[debugCell - 1].firstName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].firstSteps,
+      label: "#1",
+      frontColor: cellUserData[debugCell - 1].firstColor
+    })
+  }
+  if (cellUserData[debugCell - 1].secondName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].secondSteps,
+      label: "#2",
+      frontColor: cellUserData[debugCell - 1].secondColor
+    })
+  }
+  if (cellUserData[debugCell - 1].thirdName) {
+    barchartData.push({
+      value: cellUserData[debugCell - 1].thirdSteps,
+      label: "#3",
+      frontColor: cellUserData[debugCell - 1].thirdColor
+    })
+  }
+  if (profile && profile.cells && profile.displayName && profile.userColor
+    && (profile.displayName != cellUserData[debugCell - 1].firstName)
+    && (profile.displayName != cellUserData[debugCell - 1].secondName)
+    && (profile.displayName != cellUserData[debugCell - 1].thirdName)
+  ) {
+    barchartData.push({
+      value: profile.cells[debugCell - 1],
+      label: 'Minä',
+      frontColor: profile.userColor
+    })
   }
 
   return (
@@ -43,32 +110,60 @@ export default function CellInfoModal({ modalVisible, setModalVisible, cellUserD
               setModalVisible(false)
             }}
           />
-          <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Cell #{debugCell}</Text>
-          <View>
-            <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].firstName ? `Current leader: ${cellUserData[debugCell - 1]?.firstName} (${cellUserData[debugCell - 1]?.firstSteps} steps)` : "This cell has not yet been captured"}
-            </Text>
-            <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].secondName ? `2nd place: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} steps)` : ""}
-              {/*cellUserData ? `2nd place: ${cellUserData[debugCell - 1]?.secondName} (${cellUserData[debugCell - 1]?.secondSteps} steps)` : ""*/}
-            </Text>
-            <Text>
-              {/*cellUserData && cellUserData[debugCell - 1] && */cellUserData[debugCell - 1].thirdName ? `3rd place: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} steps)` : ""}
-              {/*cellUserData ? `3rd place: ${cellUserData[debugCell - 1]?.thirdName} (${cellUserData[debugCell - 1]?.thirdSteps} steps)` : ""*/}
-            </Text>
-            <Text>tähän kaavio? (esim pylväsdiagrammi jossa top 3 askeleet ja käyttäjän askeleet [max 4 pylvästä]?)</Text>
-            {/* pylväiden värit userColorista? */}
-            <View>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 16 }}>Alue #{debugCell}</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            {cellUserData[debugCell - 1].firstName ? (
+              <Text>
+                <MaterialIcons name="emoji-events" size={25} color="#ebb00e" />
+                {`#1: ${cellUserData[debugCell - 1].firstName} (${cellUserData[debugCell - 1].firstSteps} askelta)`}
+              </Text>
+            ) : (
+              <Text>Aluetta ei ole vielä valloitettu</Text>
+            )}
+            {cellUserData[debugCell - 1].secondName && (
+              <Text>
+                <MaterialIcons name="emoji-events" size={25} color="#b9b1b1" />
+                {`#2: ${cellUserData[debugCell - 1].secondName} (${cellUserData[debugCell - 1].secondSteps} askelta)`}
+              </Text>
+            )}
+            {cellUserData[debugCell - 1].thirdName && (
+              <Text>
+                <MaterialIcons name="emoji-events" size={25} color="#c4874a" />
+                {`#3: ${cellUserData[debugCell - 1].thirdName} (${cellUserData[debugCell - 1].thirdSteps} askelta)`}
+              </Text>
+            )}
+          </View>
+          <View style={{alignItems: 'center', marginTop: 16}}>
+            {
+              (cellUserData[debugCell - 1].firstName &&
+                profile?.displayName != cellUserData[debugCell - 1].firstName &&
+                profile?.displayName != cellUserData[debugCell - 1].secondName &&
+                profile?.displayName != cellUserData[debugCell - 1].thirdName
+              ) && (
+                <Text>
+                  Omat askeleet alueella: {(profile && profile.cells) ? profile.cells[debugCell - 1] : 0}
+                </Text>
+              )
+            }
+          </View>
+          <View style={{ /* padding: 16, margin: 16, */ margin: 24 }}>
+            {cellUserData[debugCell - 1].firstName && (
               <BarChart
-                data={
-                  [
-                    { value: 1, label: "test", frontColor: '#f00' },
-                    { value: 3, label: "test 2", frontColor: '#0f0' },
-                    { value: 4, label: "test 3", frontColor: '#00f' }
-                  ]
-                }
-              />
-            </View>
+                data={barchartData}
+                noOfSections={4}
+                initialSpacing={20}
+                width={250}
+                spacing={30}
+                endSpacing={0}
+                //xAxisTextNumberOfLines={2}
+                //rotateLabel
+                //labelsExtraHeight={16}
+                //labelsDistanceFromXaxis={16}
+                isAnimated
+                disablePress
+              />)}
           </View>
         </View>
       </View>
@@ -80,14 +175,14 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    //alignItems: 'center',
   },
   modalView: {
-    margin: 20,
+    margin: 15,
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+    //alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
