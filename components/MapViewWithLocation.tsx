@@ -6,7 +6,7 @@ import * as TaskManager from 'expo-task-manager'
 import PedometerComponent from './PedometerComponent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import cells4 from '../cells4.json'
-import { onMapLoad, CellUserData } from '../src/utils/fetchCellData'
+import { CellUserData, onMapLoad2, cellUserDataFrom } from '../src/utils/fetchCellData'
 import { setOpacity } from '../src/utils/colorStrings'
 import CellInfoModal from './CellInfoModal'
 import StepsInCell from './StepsInCell'
@@ -332,13 +332,15 @@ export default function MapViewWithLocation() {
   useEffect(() => {
     const CELL_UPDATE_INTERVAL = 60000 //kuinka usein alueiden data päivitetään (millisekunteina)
     const fetchData = async () => {
-      console.log("start fetchdata")
+      //console.log("start fetchdata")
       setIsFetchingData(true)
-      const cellDataList = await onMapLoad();
+      //const cellDataList = await onMapLoad();
+      const usersData = await onMapLoad2();
+      const cellDataList = cellUserDataFrom(usersData);
       setCellUserData(cellDataList)
       setPreviousFetch(Date.now())
       setIsFetchingData(false)
-      console.log("end fetchdata")
+      //console.log("end fetchdata")
     }
 
     //haetaan cellien data kerran, kun komponentti ladataan
