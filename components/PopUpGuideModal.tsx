@@ -27,7 +27,7 @@ export default function PopUpGuideModal({ showTutorial, setShowTutorial, dontSho
                             suurimmat askelmäärät. Oman profiilivärisi näet oikealla ylhäällä olevasta ikonista, alue muuttuu profiilivärisi 
                             mukaiseksi kun olet valloittanut alueen.{"\n"}
                             Voit tarkastella alueen tilastoja painamalla tiettyä aluetta.
-                            {"\n"}{"\n"}Kun olet valmis valloitusmatkallesi, paina Pelaa-painiketta</Text>
+                            {"\n"}{"\n"}Kun olet valmis valloitusmatkallesi, paina Aloita pelaaminen-painiketta</Text>
                         <View style={styles.checkBox}>
                         <Checkbox
                         status={dontShowAgain ? "checked" : "unchecked"}

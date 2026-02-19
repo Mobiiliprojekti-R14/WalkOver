@@ -110,7 +110,7 @@ export function AppStackNavigator() {
             <Stack.Screen name="Peliohje" component={InstructionsScreen} options={{ title: "Peliohje" }} />
 
             {/* Account-sivut */}
-            <Stack.Screen name="Settings" component={UserSettingsScreen} options={{ title: "Asetukset" }} />
+            <Stack.Screen name="Settings" component={UserSettingsScreen} options={{ title: "Tilin asetukset" }} />
 
         </Stack.Navigator>
     )
