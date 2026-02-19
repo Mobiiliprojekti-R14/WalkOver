@@ -33,7 +33,7 @@ export default function CellInfoModal({modalVisible, setModalVisible, cellUserDa
               setModalVisible(false)
             }}
           />
-          <View style={{ paddingHorizontal: 32, marginBottom: 16 }}>
+          <View style={{ paddingHorizontal: 32, marginBottom: 64, marginTop: 32 }}>
             <Text style={{ textAlign: 'center' }}>Alueen tietoja ladattaessa tapahtui virhe, yritä myöhemmin uudelleen</Text>
           </View>
         </View>

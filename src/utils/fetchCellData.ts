@@ -131,6 +131,12 @@ const onMapLoad = async (): Promise<CellUserData[]> => {
 }
 
 const onMapLoad2 = async (): Promise<UserData[]> => {
+  /*
+  * (toteutettu useAllUserSteps-hookin pohjalta)
+  * Ajetaan kerran, kun kartta ladataan, ja sen jälkeen minuutin välein
+  * Hakee tietokannasta jokaisen käyttäjän tiedot ja järjestää ne listaan
+  * {userId, username, displayName, userColor, oulu1...oulu16 (askeleet)}
+  */
   const result: UserData[] = []
   try {
     const snapshot = await getDocs(usersRef);
@@ -158,7 +164,18 @@ const onMapLoad2 = async (): Promise<UserData[]> => {
   }
 }
 
-const cellUserDataFrom = (users: UserData[]) => {
+const cellUserDataFrom = (users: UserData[]): CellUserData[] => {
+  /*
+  * Muuntaa backendistä haetun datan (UserData[]) toisenlaiseen muotoon (CellUserData[])
+  * Palauttaa listan (result), jossa on yksi elementti (CellUserData-objekti) jokaista celliä kohden.
+  * Jokainen CellUserData-objekti sisältää seuraavat tiedot cellistä:
+  * - cellin numero (cellNumber)
+  * - ykkössijan displayname, askelmäärä ja väri (firstName, firstSteps, firstColor)
+  * - kakkossijan displayname, askelmäärä ja väri (secondName, secondSteps, secondColor)
+  * - kolmossijan displayname, askelmäärä ja väri (thirdName, thirdSteps, thirdColor)
+  * Mikäli cellin alueella ei ole tarpeeksi montaa kävelijää top 3:seen, vastaavat kentät
+  * saavat arvon undefined, jotka täytyy käsitellä funktiota hyödyntävissä komponenteissa erikseen
+  */
   const result = []
   if (!users || users.length === 0) return [];
 
