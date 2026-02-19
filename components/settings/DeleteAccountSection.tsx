@@ -73,7 +73,7 @@ export function DeleteAccountSection() {
                         <Text variant="titleMedium">Tilin Poisto</Text>
 
                         <Text variant="bodySmall">
-                            Huomio!! Tilin poisto on pysyvä
+                            Huomio! Tilin poisto on pysyvä
                         </Text>
 
                         <Button mode="contained" onPress={open} disabled={busy}>

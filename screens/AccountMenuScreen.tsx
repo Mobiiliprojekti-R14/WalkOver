@@ -71,7 +71,7 @@ export function AccountMenuScreen({ navigation }: Props) {
                 </View>
 
 
-                <MenuItem title="Asetukset" onPress={() => navigation.navigate("Settings")} />
+                <MenuItem title="Tilin asetukset" onPress={() => navigation.navigate("Settings")} />
 
 
                 <View style={styles.divider} />
