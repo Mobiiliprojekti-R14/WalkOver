@@ -11,14 +11,6 @@ export function InstructionsScreen() {
     return (
 
         <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-            {/*<View style={[styles.header, { paddingTop: insets.top }]}>
-                <Button
-                    style={styles.backButton}
-                    onPress={() => console.log('Takaisin')}
-                >
-                    <MaterialIcons name="arrow-back" size={30} color="black" />
-                </Button>
-            </View>*/}
 
             <ScrollView
                 style={styles.scrollView}

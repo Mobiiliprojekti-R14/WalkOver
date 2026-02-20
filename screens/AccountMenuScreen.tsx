@@ -42,7 +42,6 @@ export function AccountMenuScreen({ navigation }: Props) {
             <View style={[styles.panel,
             {
                 width: panelW,
-                //paddingTop: 1 + insets.top,
                 marginTop: 1 + insets.top,
                 paddingBottom: 12,
                 marginBottom: insets.bottom // paneeli loppuu enen nav baria
@@ -101,7 +100,6 @@ function MenuItem({
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        //flexDirection: "row",
     },
     backDrop: {
         ...StyleSheet.absoluteFillObject,

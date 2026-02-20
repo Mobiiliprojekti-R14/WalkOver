@@ -41,7 +41,6 @@ export function LeaderboardScreen() {
         {
             value: top1Areas,
             color: top3[0]?.userColor ?? "#ffbf00",
-            // text: `${top1Areas}`,
             text: "#1",
             label: top3[0]?.displayName || "Top 1",
             fontWeight: 'bold'
@@ -49,7 +48,6 @@ export function LeaderboardScreen() {
         {
             value: top2Areas,
             color: top3[1]?.userColor ?? "#c0c0c0",
-            // text: `${top2Areas}`,
             text: "#2",
             label: top3[1]?.displayName || "Top 2",
             fontWeight: 'bold'
@@ -57,7 +55,6 @@ export function LeaderboardScreen() {
         {
             value: top3Areas,
             color: top3[2]?.userColor ?? "#CD7F32",
-            // text: `${top3Areas}`,
             text: "#3",
             label: top3[2]?.displayName || "Top 3",
             fontWeight: 'bold'
@@ -65,7 +62,6 @@ export function LeaderboardScreen() {
         {
             value: otherAreas,
             color: '#6f6f6fb4',
-            // text: `${otherAreas}`,
             text: "Loput alueet",
             label: "Muut",
             fontWeight: 'bold'
@@ -77,15 +73,6 @@ export function LeaderboardScreen() {
     return (
 
         <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-            {/*<View style={[styles.header, { paddingTop: insets.top }]}>
-                <Button
-                    style={styles.backButton}
-                    onPress={() => console.log('Takaisin')}
-                >
-                    <MaterialIcons name="arrow-back" size={30} color="black" />
-                </Button>
-            </View>*/}
-
 
             <ScrollView
                 style={styles.scrollView}

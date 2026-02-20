@@ -27,8 +27,6 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 // Singletons (koko appi käyttää näitä)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-//const firestore = getFirestore(app);
-//const auth = getAuth(app);
 
 // Collections (kokoelmien nimet yhteen paikkaan)
 export const COLLECTIONS = {
