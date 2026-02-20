@@ -68,10 +68,6 @@ export function RootGate() {
         return <SplashScreen />
     }
 
-    /*// User on olemassa, mutta users/{uid} ei vielä -> "Viimeistellään tiliä"
-    if (user && !profileReady) {
-        return <FinishingAccountScreen />
-    }*/
    if (user && !profileReady) {
     //Lasketaan onko käyttäjä juuri luotu
     const isNewUser = 

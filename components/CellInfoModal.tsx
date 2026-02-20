@@ -157,10 +157,6 @@ export default function CellInfoModal({ modalVisible, setModalVisible, cellUserD
                 width={250}
                 spacing={30}
                 endSpacing={0}
-                //xAxisTextNumberOfLines={2}
-                //rotateLabel
-                //labelsExtraHeight={16}
-                //labelsDistanceFromXaxis={16}
                 isAnimated
                 disablePress
               />)}
@@ -175,14 +171,12 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    //alignItems: 'center',
   },
   modalView: {
     margin: 15,
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
-    //alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

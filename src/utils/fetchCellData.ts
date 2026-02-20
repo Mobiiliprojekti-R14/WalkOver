@@ -27,33 +27,6 @@ type UserData = {
   userColor: string
 } & Record<string, any>
 
-/*
-const getCellUserData = async (cellNumber: number) => {
-  //palauttaa 3 alueella eniten kävellyttä käyttäjää (vain ne käyttäjät, joilla yli 0 askelta alueella)
-
-  const cellId = String(cellNumber)
-
-  try {
-    const q = query(usersRef, where(`${PREFIX}${cellId}`, ">", 0), orderBy(`${PREFIX}${cellId}`, "desc"), limit(3))
-    //const q2 = query(usersRef, where("oulu2", ">", 0), orderBy("oulu2", "desc"), limit(3))
-    //...
-    //...
-    //...
-
-    const querySnap = await getDocs(q)
-
-    console.log("snap size: ", querySnap.size)
-
-    querySnap.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data())
-      //console.log(doc.id, " => ", doc.data().displayName)
-      //console.log(doc.id, " => ", doc.get("oulu7"))
-    })
-  } catch (err) {
-    console.error(err)
-  }
-}
-*/
 
 const onMapLoad = async (): Promise<CellUserData[]> => {
   /* (ajetaan kerran, kun kartta ladataan, ja sen jälkeen minuutin välein)
